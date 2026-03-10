@@ -635,17 +635,50 @@
     // Variant shapes use: `${shapeId}__${variantValue}`
     const defaultLayouts = {
       straight: [
-        {"type":"input","label":"A","name":"END1 A","left":55.5,"top":82.6,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":23.6,"top":75.6,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"A","name":"END1 A","left":55.5,"top":82.6,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":23.6,"top":75.6,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
         {"type":"input","label":"LENGTH","name":"L","left":78.2,"top":47.1,"scale":0.6,"order":3,"required":true},
-        {"type":"select","label":"END1","name":"E1","left":48.4,"top":60.6,"scale":0.6,"order":4,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":47.9,"top":23.5,"scale":0.6,"order":5,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":48.4,"top":60.6,"scale":0.6,"order":4,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":47.9,"top":23.5,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
         {"type":"label","text":"END 2","left":49.7,"top":13.7,"scale":0.7},
         {"type":"label","text":"END 1","left":51,"top":93.9,"scale":0.7},
-        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
-		{"type": "optionGroup","label": "","name": "Ga","left":11.2,"top":33.5,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type": "optionGroup","label": "","name": "Ga","left":11.2,"top":33.5,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":8.7,"top":16.5,"scale":0.7}	
+      ],
+	  
+	  elbow: [
+        {"type":"input","label":"A","name":"END1 A","left":35.5,"top":78.5,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":14.8,"top":70.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+        {"type":"input","label":"A","name":"END2 A","left":73,"top":36.5,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"T1","name":"S1","left":57.1,"top":69.1,"scale":0.6,"order":4},
+        {"type":"input","label":"T2","name":"S2","left":65.7,"top":56.9,"scale":0.6,"order":5},
+        {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
+        {"type":"label","text":"END 2","left":74.4,"top":22.2,"scale":0.7},
+        {"type":"select","label":"END1","name":"E1","left":31.7,"top":50,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":31.7,"top":27.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type": "optionGroup","label": "","name": "Ga","left":10.7,"top":40.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"label","text":"Ga","left":8.7,"top":16.5,"scale":0.7}
+      ],
+	  
+	  elbow45: [
+        {"type":"input","label":"A","name":"END1 A","left":54.9,"top":78.1,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":30.6,"top":73.8,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"label","text":"END 1","left":43.1,"top":93.5,"scale":0.7},
+        {"type":"input","label":"A","name":"END2 A","left":66.5,"top":21.6,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"T1","name":"S1","left":77.4,"top":70.8,"scale":0.6,"order":4},
+        {"type":"input","label":"T2","name":"S2","left":85.5,"top":50.9,"scale":0.6,"order":5},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"label","text":"END 2","left":43.1,"top":16.1,"scale":0.7},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"input","label":"Angle","name":"X","left":72.5,"top":90,"scale":0.6,"required":true,"default":"45","order":8},
+        {"type":"select","label":"END1","name":"E1","left":25,"top":55,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":25,"top":29.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type": "optionGroup","label": "","name": "Ga","left":5.4,"top":41.8,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"label","text":"Ga","left":4.2,"top":19.8,"scale":0.7}
       ],
 
       oldoffset: [
@@ -659,136 +692,103 @@
         {"type":"input","label":"NECK","name":"S2","left":92.9,"top":45.8,"scale":0.6,"order":10},
         {"type":"label","text":"END 1","left":52.1,"top":105.8,"scale":0.7},
         {"type":"label","text":"END 2","left":60.7,"top":13.7,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":44.7,"top":63.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":57.6,"top":33.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true}
+        {"type":"select","label":"END1","name":"E1","left":44.7,"top":63.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57.6,"top":33.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true}
       ],
 	  
 	  "offset__up": [
-        {"type":"input","label":"A","name":"END1 A","left":19.5,"top":82.5,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":13.3,"top":61.3,"scale":0.6,"order":2,"required":true},
-		{"type":"input","label":"A","name":"END2 A","left":76.9,"top":33.3,"scale":0.6,"order":3,"copy":"END1 A"},
-        {"type":"input","label":"B","name":"END2 B","left":81.4,"top":55.3,"scale":0.6,"order":4,"copy":"END1 B"},
+        {"type":"input","label":"A","name":"END1 A","left":19.5,"top":82.5,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":13.3,"top":61.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":76.9,"top":33.3,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END2 B","left":81.4,"top":55.3,"scale":0.6,"order":4,"copy":"END1 B","bgColor":"#f08989"},
 		{"type":"input","label":"LENGTH","name":"L","left":48.3,"top":93.6,"scale":0.6,"order":5,"required":true},
         {"type":"input","label":"OFFSET","name":"X","left":66.8,"top":79.5,"scale":0.6,"order":6,"required":true},
-		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":39,"top":71,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":57,"top":57.9,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":39,"top":71,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57,"top":57.9,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
         {"type":"input","label":"NECK1","name":"S1","left":25.4,"top":41.7,"scale":0.6,"order":9},
         {"type":"input","label":"NECK2","name":"S2","left":55.3,"top":25.3,"scale":0.6,"order":10},
-		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
         {"type":"label","text":"END 1","left":8.4,"top":73.9,"scale":0.7},
         {"type":"label","text":"END 2","left":90.1,"top":73.9,"scale":0.7},
-		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":33.8,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":33.8,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":15.5,"scale":0.7}	
 
       ],
 	  
 	  "offset__down": [
-        {"type":"input","label":"A","name":"END1 A","left":22.1,"top":35.8,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":15.2,"top":56.5,"scale":0.6,"order":2,"required":true},
-		{"type":"input","label":"A","name":"END2 A","left":75.2,"top":83.5,"scale":0.6,"order":3,"copy":"END1 A"},
-        {"type":"input","label":"B","name":"END2 B","left":80.8,"top":63,"scale":0.6,"order":4,"copy":"END1 B"},
+        {"type":"input","label":"A","name":"END1 A","left":22.1,"top":35.8,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":15.2,"top":56.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":75.2,"top":83.5,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END2 B","left":80.8,"top":63,"scale":0.6,"order":4,"copy":"END1 B","bgColor":"#f08989"},
 		{"type":"input","label":"LENGTH","name":"L","left":49.5,"top":28.3,"scale":0.6,"order":5,"required":true},
         {"type":"input","label":"OFFSET","name":"X","left":80.1,"top":39.2,"scale":0.6,"order":6,"required":true},
-		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":38.9,"top":48.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":58.2,"top":61.2,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":38.9,"top":48.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":58.2,"top":61.2,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
         {"type":"input","label":"NECK1","name":"S1","left":28.6,"top":78,"scale":0.6,"order":9},
         {"type":"input","label":"NECK2","name":"S2","left":51.6,"top":90.6,"scale":0.6,"order":10},
-		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
         {"type":"label","text":"END 1","left":8.4,"top":74.9,"scale":0.7},
         {"type":"label","text":"END 2","left":90.1,"top":74.9,"scale":0.7},
-		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":33.8,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":33.8,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":15.5,"scale":0.7}	
 
       ],
 	  
 	  "offset__left": [
-        {"type":"input","label":"A","name":"END1 A","left":54,"top":93.1,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":77.5,"top":86.7,"scale":0.6,"order":2,"required":true},
-		{"type":"input","label":"A","name":"END2 A","left":48.7,"top":21.6,"scale":0.6,"order":3,"copy":"END1 A"},
-        {"type":"input","label":"B","name":"END2 B","left":28.1,"top":26.5,"scale":0.6,"order":4,"copy":"END1 B"},
+        {"type":"input","label":"A","name":"END1 A","left":54,"top":93.1,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":77.5,"top":86.7,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":48.7,"top":21.6,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END2 B","left":28.1,"top":26.5,"scale":0.6,"order":4,"copy":"END1 B","bgColor":"#f08989"},
 		{"type":"input","label":"LENGTH","name":"L","left":86.2,"top":56,"scale":0.6,"order":5,"required":true},
         {"type":"input","label":"OFFSET","name":"X","left":74.3,"top":19,"scale":0.6,"order":6,"required":true},
-		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":64.9,"top":68,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":53.8,"top":36.1,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":64.9,"top":68,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":53.8,"top":36.1,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
         {"type":"input","label":"NECK1","name":"S1","left":31.2,"top":80,"scale":0.6,"order":9},
         {"type":"input","label":"NECK2","name":"S2","left":22.8,"top":49.8,"scale":0.6,"order":10},
-		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
         {"type":"label","text":"END 1","left":28.6,"top":93.8,"scale":0.7},
         {"type":"label","text":"END 2","left":28.6,"top":16.5,"scale":0.7},
-		{"type": "optionGroup","label": "","name": "Ga","left":5.4,"top":35.8,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type": "optionGroup","label": "","name": "Ga","left":5.4,"top":35.8,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":15.5,"scale":0.7}	
 
       ],
 	  "offset__right": [
-        {"type":"input","label":"A","name":"END1 A","left":48.9,"top":92.4,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":26.6,"top":85.3,"scale":0.6,"order":2,"required":true},
-		{"type":"input","label":"A","name":"END2 A","left":55.4,"top":19.4,"scale":0.6,"order":3,"copy":"END1 A"},
-        {"type":"input","label":"B","name":"END2 B","left":78.4,"top":25.6,"scale":0.6,"order":4,"copy":"END1 B"},
+        {"type":"input","label":"A","name":"END1 A","left":48.9,"top":92.4,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":26.6,"top":85.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":55.4,"top":19.4,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END2 B","left":78.4,"top":25.6,"scale":0.6,"order":4,"copy":"END1 B","bgColor":"#f08989"},
 		{"type":"input","label":"LENGTH","name":"L","left":14.5,"top":57.2,"scale":0.6,"order":5,"required":true},
         {"type":"input","label":"OFFSET","name":"X","left":32.2,"top":31.9,"scale":0.6,"order":6,"required":true},
-		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":45.3,"top":68.9,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":57.1,"top":37,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":45.3,"top":68.9,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57.1,"top":37,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
         {"type":"input","label":"NECK1","name":"S1","left":75.7,"top":80.2,"scale":0.6,"order":9},
         {"type":"input","label":"NECK2","name":"S2","left":87.1,"top":41.6,"scale":0.6,"order":10},
-		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
         {"type":"label","text":"END 1","left":28.6,"top":93.8,"scale":0.7},
         {"type":"label","text":"END 2","left":28.6,"top":16.5,"scale":0.7},
-		{"type": "optionGroup","label": "","name": "Ga","left":5.4,"top":35.8,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type": "optionGroup","label": "","name": "Ga","left":5.4,"top":35.8,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":15.5,"scale":0.7}	
 
       ],
 
-      elbow: [
-        {"type":"input","label":"A","name":"END1 A","left":35.5,"top":78.5,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":14.8,"top":70.1,"scale":0.6,"order":2,"required":true},
-        {"type":"input","label":"A","name":"END2 A","left":73,"top":36.5,"scale":0.6,"order":4,"copy":"END1 A"},
-        {"type":"input","label":"T1","name":"S1","left":57.1,"top":69.1,"scale":0.6,"order":5},
-        {"type":"input","label":"T2","name":"S2","left":65.7,"top":56.9,"scale":0.6,"order":6},
-        {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
-        {"type":"label","text":"END 2","left":74.4,"top":22.2,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":31.7,"top":50,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":31.7,"top":27.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
-		{"type": "optionGroup","label": "","name": "Ga","left":10.7,"top":40.3,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
-		{"type":"label","text":"Ga","left":8.7,"top":16.5,"scale":0.7}
-      ],
-	  
-	  elbow45: [
-        {"type":"input","label":"A","name":"END1 A","left":54.9,"top":78.1,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":30.6,"top":73.8,"scale":0.6,"order":2,"required":true},
-		{"type":"label","text":"END 1","left":43.1,"top":93.5,"scale":0.7},
-        {"type":"input","label":"A","name":"END2 A","left":66.5,"top":21.6,"scale":0.6,"order":4,"copy":"END1 A"},
-        {"type":"input","label":"T1","name":"S1","left":77.4,"top":70.8,"scale":0.6,"order":5},
-        {"type":"input","label":"T2","name":"S2","left":85.5,"top":50.9,"scale":0.6,"order":6},
-		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-        {"type":"label","text":"END 2","left":43.1,"top":16.1,"scale":0.7},
-		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
-		{"type":"input","label":"Angle","name":"X","left":72.5,"top":90,"scale":0.6,"order":1,"required":true,"default":"45"},
-        {"type":"select","label":"END1","name":"E1","left":25,"top":55,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":25,"top":29.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-		{"type": "optionGroup","label": "","name": "Ga","left":5.4,"top":41.8,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
-		{"type":"label","text":"Ga","left":4.2,"top":19.8,"scale":0.7}
-      ],
-
       canvas: [
-        {"type":"input","label":"A","name":"END1 A","left":46.3,"top":75.3,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":7.3,"top":44.6,"scale":0.6,"order":2,"required":true},
-        {"type":"select","label":"END1","name":"E1","left":41,"top":5.8,"scale":0.6,"order":4,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":42.8,"top":31,"scale":0.6,"order":5,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]}
+        {"type":"input","label":"A","name":"END1 A","left":46.3,"top":75.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":7.3,"top":44.6,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+        {"type":"select","label":"END1","name":"E1","left":41,"top":5.8,"scale":0.6,"order":4,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":42.8,"top":31,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]}
       ],
 
       endcap: [
-        {"type":"input","label":"A","name":"END1 A","left":52.1,"top":80.3,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":7.5,"top":57.5,"scale":0.6,"order":2,"required":true},
-        {"type":"select","label":"END1","name":"E1","left":55,"top":17.7,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":30.6,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+        {"type":"input","label":"A","name":"END1 A","left":52.1,"top":80.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":7.5,"top":57.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+        {"type":"select","label":"END1","name":"E1","left":55,"top":17.7,"scale":0.6,"order":3,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":30.6,"scale": 0.6,"order": 15,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}
       ],
 
@@ -799,133 +799,133 @@
       ],
 	  
 	  square2round: [
-        {"type":"input","label":"A","name":"END1 A","left":56.1,"top":77.7,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":29.3,"top":72.4,"scale":0.6,"order":2,"required":true},
-        {"type":"input","label":"A","name":"END2 A","left":50.5,"top":24.9,"scale":0.6,"order":4,"required":true},
+        {"type":"input","label":"A","name":"END1 A","left":56.1,"top":77.7,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":29.3,"top":72.4,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+        {"type":"input","label":"A","name":"END2 A","left":50.5,"top":24.9,"scale":0.6,"order":3,"required":true},
         {"type":"label","text":"END 1","left":52.4,"top":93.9,"scale":0.7},
         {"type":"label","text":"END 2","left":52.4,"top":15.6,"scale":0.7},
-		{"type":"input","label":"LENGTH","name":"Length","left":83.6,"top":48.6,"scale":0.6,"order":1,"required":true},
-        {"type":"select","label":"END1","name":"E1","left":19.5,"top":53.8,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
-		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":30.6,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"input","label":"LENGTH","name":"Length","left":83.6,"top":48.6,"scale":0.6,"order":4,"required":true},
+        {"type":"select","label":"END1","name":"E1","left":19.5,"top":53.8,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":30.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}
       ],
 
       // ===== Transition variant layouts (EDIT THESE POSITIONS FOR EACH IMAGE) =====
       // Your pins will change with the photo, so each variant gets its own layout key.
       "transition__flat left": [
-		  {"type":"input","label":"A","name":"END1 A","left":58.2,"top":77.4,"scale":0.6,"order":1,"required":true},
-		  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true},
-		  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true},
-		  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21,"scale":0.6,"order":4,"required":true},
-		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-		  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":5},
-		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-		  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":6}, 
-		  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":999,"required":true},
+		  {"type":"input","label":"A","name":"END1 A","left":58.2,"top":77.4,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+		  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+		  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":8},
+		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":9}, 
+		  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":5,"required":true},
 		  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-		  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"order": 15,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
-		  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
+		  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		  {"type":"label","text":"END 1","left":51.6,"top":89.8,"scale":0.7},
 		  {"type":"label","text":"END 2","left":48.2,"top":12.9,"scale":0.7},
-		  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		  {"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
 		  
       ],
 
       "transition__center": [
-		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-		{"type":"input","label":"A","name":"END1 A","left":52.7,"top":82.9,"scale":0.6,"order":1,"required":true},
-		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true},
-		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true},
-		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27,"scale":0.6,"order":4,"required":true},
-		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":5},
-		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":5},
-		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":999,"required":true},
-		{"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"order": 15,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
+		{"type":"input","label":"A","name":"END1 A","left":52.7,"top":82.9,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":8},
+		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":9},
+		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":5,"required":true},
+		{"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
 		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
-		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
 
 ],
 
       "transition__flat right": [
-			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-			  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"order": 15,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},  
-			  {"type":"input","label":"A","name":"END1 A","left":48.7,"top":84.3,"scale":0.6,"order":1,"required":true},
-			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true},
-			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true},
-			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true},
-			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":5},
-			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":5},
-			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":999,"required":true},
+			  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},  
+			  {"type":"input","label":"A","name":"END1 A","left":48.7,"top":84.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":8},
+			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":9},
+			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
-			  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+			  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 			  {"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
 
 
       ],
 	  
 	  "garwood__center": [
-			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true},
-			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true},
-			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A"},
-			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B"},
-			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
-			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":999,"required":true},
+			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A","bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B","bgColor":"#f08989"},
+			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
-			  {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":52.8,"scale":0.6,"order":999},
-			  {"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+			  {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":52.8,"scale":0.6,"order":8},
+			  {"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 			  {"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}	
 
 
       ],
 	  "garwood__left": [
-			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true},
-			  {"type":"input","label":"B","name":"END1 B","left":25.5,"top":76.2,"scale":0.6,"order":2,"required":true},
-			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A"},
-			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B"},
-			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
-			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":999,"required":true},
+			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END1 B","left":25.5,"top":76.2,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A","bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B","bgColor":"#f08989"},
+			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
-			   {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":52.8,"scale":0.6,"order":999},
-			  {"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+			   {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":52.8,"scale":0.6,"order":8},
+			  {"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 			  {"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}	
 
 
       ],
 	  
 	  "garwood__right": [
-			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true},
-			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true},
-			  {"type":"input","label":"A","name":"END2 B","left":80.4,"top":30.2,"scale":0.6,"order":3,"required":true,"copy":"END1 A"},
-			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B"},
-			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
-			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":999,"required":true},
+			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+			  {"type":"input","label":"A","name":"END2 B","left":80.4,"top":30.2,"scale":0.6,"order":3,"required":true,"copy":"END1 A","bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B","bgColor":"#f08989"},
+			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
-			   {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":52.8,"scale":0.6,"order":999},
-			   {"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+			   {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":52.8,"scale":0.6,"order":8},
+			   {"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 			  {"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}	
 
 
@@ -934,24 +934,24 @@
 	  flatsheet: [
         {"type":"input","label":"A","name":"END1 A","left":52.3,"top":92.2,"scale":0.6,"order":1,"required":true},
         {"type":"input","label":"B","name":"END1 B","left":20.7,"top":56.8,"scale":0.6,"order":2,"required":true},
-		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":40.6,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":40.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}
 		],
 		
 		
 	takeoff: [
-        {"type":"input","label":"A","name":"END1 A","left":49.4,"top":83.4,"scale":0.6,"order":1,"required":true},
-        {"type":"input","label":"B","name":"END1 B","left":19.5,"top":79.1,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"A","name":"END1 A","left":49.4,"top":83.4,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":19.5,"top":79.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
         {"type":"input","label":"LENGTH","name":"L","left":17.2,"top":59.5,"scale":0.6,"order":5,"required":true},
-        {"type":"input","label":"A","name":"END2 A","left":54.8,"top":27.7,"scale":0.6,"order":3},
-        {"type":"input","label":"B","name":"END2 B","left":26.5,"top":34.6,"scale":0.6,"order":4},
+        {"type":"input","label":"A","name":"END2 A","left":54.8,"top":27.7,"scale":0.6,"order":3,"bgColor":"#42f5f5","required":true},
+        {"type":"input","label":"B","name":"END2 B","left":26.5,"top":34.6,"scale":0.6,"order":4,"bgColor":"#f08989","required":true},
         {"type":"label","text":"END 1","left":49,"top":95.3,"scale":0.7},
         {"type":"label","text":"END 2","left":49,"top":13.7,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":57.9,"top":63.2,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":55.2,"top":40.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
-        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
-		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"order": 15,"options": ["16","20","24","26"],"default": "24","required": true,"direction": "vertical"},	
+        {"type":"select","label":"END1","name":"E1","left":57.9,"top":63.2,"scale":0.5,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":55.2,"top":40.6,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}
       ],	
     };
@@ -1348,6 +1348,9 @@
     function createInputPin(data){
 		  const pin = document.createElement("div");
 		  pin.className = "pin";
+		  if (data.bgColor){
+		  pin.style.background = data.bgColor;
+		}
 		  pin.style.left = data.left + "%";
 		  pin.style.top  = data.top + "%";
 		  setScale(pin, data.scale ?? 1);
@@ -1577,7 +1580,7 @@
       el.style.left = data.left + "%";
       el.style.top  = data.top + "%";
       setScale(el, data.scale ?? 1);
-
+	  
       el.addEventListener("click", (e) => { selectElement(el); e.stopPropagation(); });
       return el;
     }
@@ -1840,19 +1843,34 @@
         card.className = "pending-card";
 
         const top = document.createElement("div");
-        top.className = "pending-top";
+		top.className = "pending-top";
 
-        const fit = document.createElement("div");
-        fit.className = "fit";
-        fit.textContent = `${idx+1}. ${entry.shapeName || entry.shapeId || "Fitting"}`;
+		const fit = document.createElement("div");
+		fit.className = "fit";
 
-        const meta = document.createElement("div");
-        meta.className = "metaLine";
-        const vtxt = entry.variant ? ` | ${String(entry.variant).toUpperCase()}` : "";
-        meta.textContent = `Tag: ${entry.tag || "—"} | QTY: ${entry.qty || "—"}${vtxt}`;
+		const vtxt = entry.variant ? ` • ${String(entry.variant).toUpperCase()}` : "";
+		fit.textContent = `${idx + 1}. ${entry.shapeName || entry.shapeId || "Fitting"}${vtxt}`;
 
-        top.appendChild(fit);
-        top.appendChild(meta);
+		top.appendChild(fit);
+
+		const metaRow = document.createElement("div");
+		metaRow.className = "kv";
+
+		const tagChip = document.createElement("span");
+		tagChip.className = "chip";
+		tagChip.textContent = `TAG: ${entry.tag || "—"}`;
+
+		const gaChip = document.createElement("span");
+		gaChip.className = "chip";
+		gaChip.textContent = `GA: ${entry.Ga || "—"}`;
+
+		const qtyChip = document.createElement("span");
+		qtyChip.className = "chip";
+		qtyChip.textContent = `QTY: ${entry.qty || "—"}`;
+
+		metaRow.appendChild(tagChip);
+		metaRow.appendChild(gaChip);
+		metaRow.appendChild(qtyChip);
 
         const kv = document.createElement("div");
         kv.className = "kv";
@@ -1890,9 +1908,10 @@
         actions.appendChild(editBtn);
         actions.appendChild(removeBtn);
 
-        card.appendChild(top);
-        card.appendChild(kv);
-        card.appendChild(actions);
+       card.appendChild(top);
+		card.appendChild(metaRow);
+		card.appendChild(kv);
+		card.appendChild(actions);
 
         pendingListEl.appendChild(card);
       });
