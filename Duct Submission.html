@@ -1,0 +1,2162 @@
+<!--python3 -m http.server 8000-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Duct Submission Tool</title>
+
+  <style>
+    .app { max-width: 980px; margin: 0 auto; font-family: system-ui, Arial; }
+    .screen { padding: 14px; }
+    .hidden { display: none; }
+    .title { margin: 6px 0 14px; }
+
+    /* HOME GRID */
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    @media (max-width: 680px){ .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    .tile{
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      user-select: none;
+    }
+    .tile:active { transform: translateY(1px); }
+    .tile img { width: 150px; height: 95px; object-fit: contain; }
+    .tile .label { font-weight: 800; text-align: center; }
+
+    /* DETAIL */
+    .topbar { display:flex; align-items:center; gap:10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .crumb { font-weight: 900; margin-right: auto; }
+
+    .diagram-wrap { position: relative; width: 100%; }
+    .diagram-img { width: 100%; height: auto; display:block; }
+
+    /* ===== OVERLAY ELEMENTS (MANUAL PER-ELEMENT SCALE) ===== */
+    .pin,
+    .pin-label{
+      position:absolute;
+      --pinScale: 1;
+      transform: translate(-50%, -50%) scale(var(--pinScale));
+      transform-origin: center;
+      touch-action: none;
+      cursor: move;
+      border: 2px solid transparent;
+    }
+
+    .pin.dragging,
+    .pin-label.dragging { opacity: 0.8; }
+
+    .pin.selected,
+    .pin-label.selected { border-color: rgba(0,0,0,0.5); }
+
+    /* INPUT PIN */
+    .pin{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:4px 2.5px;
+      border-radius:10px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+
+    .pin label{
+      font-weight: 900;
+      min-width: 2px;
+      text-align:center;
+      font-size: 20px;
+    }
+
+    .pin input{
+      width: 18px;
+	  
+      border: 1px solid rgba(0,0,0,0.25);
+      border-radius: 10px;
+      font-size: 20px;
+	  text-align: center;
+	  
+    }
+	
+
+    /* TEXT LABEL (no input) */
+    .pin-label{
+      font-weight: 900;
+      font-size: 18px;
+      padding: 2px 2px;
+      background: rgba(255,255,255,0.85);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    /* META FORM */
+    .meta { margin-top: 12px; display: grid; gap: 10px; }
+    .meta label { display:grid; gap:6px; font-weight:800; }
+    .meta input {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.2);
+      font-size: 16px;
+    }
+
+    /* BUTTONS */
+    .btn{
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: white;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn.primary { border: 0; }
+    .btn.danger { border-color: rgba(180,0,0,0.35); }
+
+    .status { margin: 0; font-size: 14px; }
+    .tools { display:flex; gap:10px; flex-wrap: wrap; }
+    .hint { font-size: 13px; opacity: 0.8; margin: 0; }
+    .divider { height: 1px; background: rgba(0,0,0,0.12); margin: 12px 0; }
+
+    /* ===== HOME: PENDING LIST ===== */
+    .home-split { display:grid; gap: 14px; }
+    @media (min-width: 900px){
+      .home-split { grid-template-columns: 1.2fr 0.8fr; align-items: start; }
+    }
+
+    .panel{
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 12px;
+    }
+    .panel h3{ margin: 0 0 10px; }
+    .panel .panel-actions{ display:flex; gap:10px; flex-wrap: wrap; margin-bottom: 10px; }
+
+    .pending-list{ display:grid; gap: 10px; }
+    .pending-card{
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 14px;
+      padding: 10px;
+      display:grid;
+      gap: 8px;
+      background: rgba(250,250,250,0.6);
+    }
+    .pending-top{ display:flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+    .pending-top .fit{ font-weight: 900; }
+    .pending-top .metaLine{ opacity: 0.8; font-size: 13px; }
+
+    .kv{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      font-size: 13px;
+    }
+    .chip{
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: white;
+    }
+    .pending-actions{ display:flex; gap: 10px; flex-wrap: wrap; }
+    .muted{ opacity: 0.7; font-size: 13px; margin: 0; }
+
+    /* --- Mobile fixes: prevent iOS text-resize + keep submit visible --- */
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+    @media (max-width: 680px){
+      .meta { padding-bottom: 78px; } /* space for sticky button */
+    }
+
+    /* sticky submit row */
+    .meta .btn.primary{
+      position: sticky;
+      bottom: 12px;
+      width: 100%;
+      display: block;
+      z-index: 50;
+      padding: 14px 12px;
+    }
+
+    @media (max-width: 680px){
+      .pin label { font-size: 16px; }
+      .pin input { font-size: 16px; padding: 6px 8px; width: 42px; }
+    }
+
+    /* Green primary button */
+    .btn.primary{
+      background: #28a745;
+      color: white;
+      border: none;
+    }
+    .btn.primary:hover{ background: #218838; }
+    .btn.primary:active{ background: #1e7e34; }
+
+    .pin select{
+      width: 110px;
+      padding: 6px 8px;
+      border: 1px solid rgba(0,0,0,0.25);
+      border-radius: 10px;
+      font-size: 20px;
+      background: white;
+    }
+
+    /* --- Modal + spinner --- */
+    .modal{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: grid;
+      place-items: center;
+      z-index: 5000;
+    }
+    .modal.hidden{ display:none; }
+
+    .modal-box{
+      background: white;
+      border-radius: 16px;
+      padding: 18px 18px;
+      min-width: 220px;
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+
+    .spinner{
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 5px solid rgba(0,0,0,0.12);
+      border-top-color: rgba(0,0,0,0.75);
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin{ to { transform: rotate(360deg); } }
+
+    .modal-text{
+      font-weight: 900;
+      letter-spacing: 0.04em;
+    }
+
+    /* Input color boxes */
+    .pin input:required,
+    .pin select:required {
+      background: #ffff80;
+    }
+
+    .meta input:required,
+    .meta select:required {
+      background: #ffff80;
+    }
+
+    /* Toggle */
+    .pin .toggle{
+      position: relative;
+      width: 54px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.18);
+      display: inline-block;
+    }
+    .pin .toggle input{
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      cursor: pointer;
+    }
+    .pin .toggle .knob{
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: white;
+      transition: transform 0.15s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .pin .toggle input:checked + .knob{
+      transform: translateX(24px);
+    }
+    .pin.toggle-on .toggle{
+      background: #28a745;
+    }
+
+    /* Option group */
+    .pin .option-group{
+      display: flex;
+      gap: 15px;
+      align-items: center; /* was invalid 'right' */
+    }
+
+    .pin .option-group label{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+    }
+
+    .pin .option-group input[type="radio"]{
+      transform: scale(1.6);
+      transform-origin: left center;
+      accent-color: #28a745;
+
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      flex: 0 0 18px;
+    }
+
+    /* ===== VARIANT SUBSCREEN (Left/Center/Right etc) ===== */
+    .subscreen{
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 16px;
+      padding: 12px;
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 12px;
+    }
+
+    .subscreen-title{
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .segmented{
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .seg-btn{
+      padding: 12px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: white;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .seg-btn.active{
+      background: #28a745;
+      color: white;
+      border-color: transparent;
+    }
+	
+	.pin .option-group.vertical{
+	  flex-direction: column;
+	  align-items: flex-start;
+	  gap: 20px;
+	  width: 100px;
+	
+	}
+
+	.pin .option-group.vertical label{
+	  display: inline-flex;
+	  align-items: center;
+	   padding: 1px 1px;
+	   margin-left: -10px;   /* pulls group closer to left border */
+	  gap: 13px;
+	  font-weight: 800;
+	  text-transform: uppercase;
+	  font-size: 15px;
+	}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- HOME -->
+    <section id="home" class="screen">
+      <div class="home-split">
+        <div>
+          <h2 class="title">Select a fitting</h2>
+          <div class="grid" id="shapeGrid"></div>
+        </div>
+
+        <aside class="panel">
+          <h3>Pending submissions</h3>
+
+          <div class="panel-actions">
+            <button type="button" id="sendAllBtn" class="btn primary">Send all to sheet</button>
+            <button type="button" id="clearAllBtn" class="btn danger">Clear</button>
+          </div>
+
+          <p class="muted" id="pendingSummary"></p>
+          <div class="pending-list" id="pendingList"></div>
+
+          <p id="homeStatus" class="status" aria-live="polite" style="margin-top:10px;"></p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- DETAIL -->
+    <section id="detail" class="screen hidden">
+      <div class="topbar">
+        <button type="button" id="backBtn" class="btn">← Back</button>
+        <div class="crumb" id="shapeName"></div>
+
+        <!-- EDIT MODE tools -->
+        <div class="tools" id="editTools" style="display:none;">
+          <button type="button" id="addFieldBtn" class="btn">+ Add field</button>
+          <button type="button" id="addLabelBtn" class="btn">+ Add label</button>
+
+          <button type="button" id="deleteSelectedBtn" class="btn danger">Delete selected</button>
+
+          <button type="button" id="pinSmallerBtn" class="btn">Size −</button>
+          <button type="button" id="pinBiggerBtn" class="btn">Size +</button>
+          <button type="button" id="pinResetBtn" class="btn">Size 1×</button>
+
+          <button type="button" id="copyBtn" class="btn">Copy layout</button>
+          <button type="button" id="saveBtn" class="btn">Save layout (this PC)</button>
+          <button type="button" id="clearBtn" class="btn danger">Clear layout</button>
+        </div>
+      </div>
+
+      <p class="hint" id="editHint" style="display:none;">
+        Edit mode: click to select, drag to position, resize with Size +/- , then Copy/Save.
+      </p>
+
+      <form id="measureForm">
+        <!-- VARIANT SUBSCREEN (auto-shown only for configured shapes) -->
+        <div id="variantPanel" class="subscreen hidden">
+          <div class="subscreen-title" id="variantTitle">Options</div>
+          <div class="segmented" id="variantButtons"></div>
+          <input type="hidden" id="variantValue" name="variant" value="">
+        </div>
+
+        <div class="diagram-wrap" id="diagramWrap">
+          <img id="detailImg" class="diagram-img" alt="Selected fitting" />
+          <!-- pins/labels are added dynamically -->
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="meta">
+          <label>QTY <input name="qty" inputmode="numeric" min="1" step="1" value="1" required /></label>
+          <label>Tag <input name="tag" placeholder="e.g. AHU-3" autocomplete="off" autocorrect="off" spellcheck="false" /></label>
+          <label>Notes <input name="notes" placeholder="Include any notes here" autocomplete="off" autocorrect="off" spellcheck="false" /></label>
+          <button class="btn primary" type="submit">Add to pending</button>
+          <p id="status" class="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- SENDING MODAL -->
+  <div id="sendingModal" class="modal hidden" role="dialog" aria-modal="true" aria-live="polite">
+    <div class="modal-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <div class="modal-text" id="sendingText">SENDING…</div>
+    </div>
+  </div>
+
+  <!-- SEND INFO MODAL -->
+  <div id="sendInfoModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-box" style="min-width: 280px; max-width: 420px; width: calc(100% - 24px);">
+      <div style="font-weight: 900; font-size: 16px;">Send to sheet</div>
+
+      <label style="width:100%; display:grid; gap:6px; font-weight:800;">
+        Your name
+        <input id="sendUserName" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               style="padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,0.2); font-size:16px;">
+      </label>
+
+      <label style="width:100%; display:grid; gap:6px; font-weight:800;">
+        Project
+        <input id="sendProject" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               style="padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,0.2); font-size:16px;">
+      </label>
+
+      <label style="width:100%; display:grid; gap:6px; font-weight:800;">
+        List name
+        <input id="sendListName" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+               style="padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,0.2); font-size:16px;">
+      </label>
+
+      <div style="display:flex; gap:10px; width:100%; justify-content:flex-end; margin-top:6px;">
+        <button type="button" id="sendCancelBtn" class="btn">Cancel</button>
+        <button type="button" id="sendConfirmBtn" class="btn primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUMMARY_CONFIG = {
+      offset: {fields: {end1A: "END1 A",end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",length: "L",offset: "X",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, length, offset, e1, e2, wrap, liner  }) =>
+          `<b>${end1A}</b>x<b>${end1B}</b> to <b>${end2A}</b>x<b>${end2B}</b>-<b>${length}</b> OFFSET: <b>${offset}"</b> CONN: <b>${e1}-${e2}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
+      },
+
+      elbow: {fields: {end1A: "END1 A",end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner  }) =>
+          `<b>${end1A}</b>x<b>${end1B}</b>x<b>${end2A}</b>  THROATS: <b>${s1}-${s2}</b> CONN: <b>${e1}-${e2}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
+      },
+	  elbow45: {fields: {end1A: "END1 A",end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2", angle:"X",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, angle, wrap,liner  }) =>
+          `<b>${end1A}</b>x<b>${end1B}</b>x<b>${end2A}</b> ANGLE: <b>${angle}</b>  THROATS: <b>${s1}-${s2}</b> CONN: <b>${e1}-${e2}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
+      },
+	  transition: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",length: "L",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner",x:"X"},
+        format: ({ end1A, end1B, end2A, end2B, length, s1, s2, e1, e2, wrap,liner,x  }) =>
+          `<b>${end1A}</b>x<b>${end1B}</b> to <b>${end2A}</b>x<b>${end2B}</b>-<b>${length} ${x}</b> THROATS: <b>${s1}-${s2}</b> CONN: <b>${e1}-${e2}</b> INSULATE: <b>${wrap}</b> LINED: <b>${liner}</b> `
+      },
+	  garwood: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner  }) =>
+          `<b>${end1A}</b>x<b>${end1B}</b> to <b>${end2A}</b>x<b>${end2B}</b>  THROATS: <b>${s1}-${s2}</b> CONN: <b>${e1}-${e2}</b> INSULATE: <b>${wrap}</b> LINED: <b>${liner}</b>`
+      },
+	  
+	   takeoff: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner }) =>
+          `<b>${end1A}</b>x<b>${end1B}</b> to <b>${end2A}</b>x<b>${end2B}</b>  THROATS: <b>${s1}-${s2}</b> CONN: <b>${e1}-${e2}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
+      },
+	  straight: {
+        fields: {end1A: "END1 A", end1B: "END1 B",length: "L",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, length, e1, e2, wrap,liner }) =>
+          `<b>${end1A}</b>x<b>${end1B}-<b>${length}</b></b> CONN: <b>${e1}-${e2}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
+      },
+	  
+	  square2round: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner }) =>
+          `<b>${end1A}</b>x<b>${end1B}</b> to <b>${end2A}</b> round  CONN: <b>${e1}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
+      },
+	  canvas: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner }) =>
+          `<b>${end1A}</b>x<b>${end1B} </b>CONN: <b>${e1}-${e2}</b> `
+      },
+	  endcap: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner }) =>
+          `<b>${end1A}</b>x<b>${end1B} </b>CONN: <b>${e1}</b> `
+      },
+	  drainpan: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner }) =>
+          `<b>${end1A}</b>x<b>${end1B} </b>PAN DEPTH: <b>${e1}</b> `
+      },
+	  flatsheet: {
+        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner }) =>
+          `<b>${end1A}</b>x<b>${end1B} </b>`
+      },
+	  
+    };
+
+    // ============================================================
+    // SETTINGS
+    // ============================================================
+    const EDIT_MODE = false; // set false for production
+    const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwAM6IQjKmxU1btbYWYHFLI7Yywau3_AGlDMvZigXwbuY53fCXymMCbHHAibEFgeNrFYg/exec";
+
+    const shapes = [
+      { id:"straight",  name:"Straight Duct", img:"Images/CleanStraightDuct1.png", thumb:"Images/StraightDuctIcon.png" },
+	  { id:"elbow",     name:"Elbow",         img:"Images/CleanElbow1.png",        thumb:"Images/ElbowIcon.png" },
+	  { id:"elbow45",   name:"Angle Elbow",       img:"Images/45ElbowClean1.png",      thumb:"Images/45ElbowIcon.png" },
+      //{ id:"oldoffset",    name:"Offset",        img:"Images/CleanOffset1.png",       thumb:"Images/OffsetIcon.png" },
+	  { id:"offset",    name:"Offset",        img:"Images/CleanOffset1.png",       thumb:"Images/OffsetIcon.png" },
+	  { id:"transition", name:"Transition",   img:"Images/TransitionIcon.png",     thumb:"Images/TransitionIcon.png" },
+	  { id:"garwood" , name:"Garwood",   	  img:"Images/GarwoodCenterClean.png",     thumb:"Images/GarwoodIcon.png" },
+      { id:"takeoff",   name:"Takeoff",       img:"Images/TakeoffClean1.png",            thumb:"Images/TakeoffIcon.png" },
+	  { id:"square2round",   name:"Square to Round",       img:"Images/SquareToRoundClean1.png",            thumb:"Images/SquareToRoundIcon.png" },
+	  { id:"canvas",    name:"Canvas",        img:"Images/Canvas-Connector.png",   thumb:"Images/Canvas.png" },
+	  { id:"endcap",    name:"End Cap",       img:"Images/EndCap.png",             thumb:"Images/EndCap.png" },
+	  { id:"drainpan",  name:"Drain Pan",     img:"Images/drainpan.png",           thumb:"Images/drainpan.png" },
+	  { id:"flatsheet" , name:"Flat Sheet",   img:"Images/RectangleSheet.png",     thumb:"Images/RectangleSheetIcon.png" },
+	//{ id:"3tee",      name:"3 Way Tee",     img:"Images/3 Way Tee.png" },
+	// { id:"4way",      name:"4 Way",         img:"Images/4 Way.png" },
+	//{ id:"3split",    name:"3 Way Split",   img:"Images/3 Way Split.png",        thumb:"Images/3 Way Split Icon.png" },
+
+      // ===== Example “variant” shape (update images/layouts to your real files) =====
+      // If you already have a transition fitting, rename this id to match yours.
+  
+    ];
+
+    // ============================================================
+    // VARIANTS CONFIG (for subscreens: Left/Center/Right etc.)
+    // Add more shapes here later, same pattern.
+    // ============================================================
+    const VARIANT_CONFIG = {
+      transition: {
+        title: "Transition alignment",
+        fieldName: "variant",        // stored in the form/pending/submission
+        default: "center",
+        options: [
+          { value: "flat left",   label: "Flat Left",     img: "Images/CleanTransition-Left1.png" },
+          { value: "center", label: "Centered", img: "Images/CleanTransition-Centered1.png" },
+          { value: "flat right",  label: "Flat Right",    img: "Images/CleanTransition-Right1.png" },
+        ]
+      },
+	  
+	  garwood: {
+        title: "Garwood alignment",
+        fieldName: "variant",        // stored in the form/pending/submission
+        default: "center",
+        options: [
+          { value: "left",   label: "Left",     img: "Images/GarwoodLeftClean1.png" },
+          { value: "center", label: "Centered", img: "Images/GarwoodCenterClean1.png" },
+          { value: "right",  label: "Right",    img: "Images/GarwoodRightClean1.png" },
+        ]
+      },
+	  
+	  offset: {
+        title: "Offset alignment",
+        fieldName: "variant",        // stored in the form/pending/submission
+        default: "center",
+        options: [
+          { value: "up",   label: "Up",     img: "Images/CleanOffsetUp1.png" },
+          { value: "down", label: "Down", img: "Images/CleanOffsetDown1.png" },
+          { value: "left",  label: "Left",    img: "Images/CleanOffsetLeft1.png" },
+		  { value: "right", label: "Right",    img: "Images/CleanOffsetRight1.png" },
+		  //{ value: "Double",  label: "Double",    img: "Images/DoubleOffset.png" },
+        ]
+      }
+    };
+
+    // Layouts by key. Non-variant shapes use their id as the key.
+    // Variant shapes use: `${shapeId}__${variantValue}`
+    const defaultLayouts = {
+      straight: [
+        {"type":"input","label":"A","name":"END1 A","left":55.5,"top":82.6,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":23.6,"top":75.6,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"LENGTH","name":"L","left":78.2,"top":47.1,"scale":0.6,"order":3,"required":true},
+        {"type":"select","label":"END1","name":"E1","left":48.4,"top":60.6,"scale":0.6,"order":4,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":47.9,"top":23.5,"scale":0.6,"order":5,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"label","text":"END 2","left":49.7,"top":13.7,"scale":0.7},
+        {"type":"label","text":"END 1","left":51,"top":93.9,"scale":0.7},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true}
+      ],
+
+      oldoffset: [
+        {"type":"input","label":"A","name":"END1 A","left":50.7,"top":82.6,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":22.5,"top":75.9,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"OFFSET","name":"OFF","left":25.1,"top":22.1,"scale":0.6,"order":6,"required":true},
+        {"type":"input","label":"LENGTH","name":"L","left":16.7,"top":51.7,"scale":0.6,"order":5,"required":true},
+        {"type":"input","label":"A","name":"END2 A","left":61.1,"top":22.7,"scale":0.6,"order":3,"copy":"END1 A"},
+        {"type":"input","label":"B","name":"END2 B","left":86.1,"top":27.1,"scale":0.6,"order":4,"copy":"END1 B"},
+        {"type":"input","label":"NECK","name":"S1","left":81.3,"top":73,"scale":0.6,"order":9},
+        {"type":"input","label":"NECK","name":"S2","left":92.9,"top":45.8,"scale":0.6,"order":10},
+        {"type":"label","text":"END 1","left":52.1,"top":105.8,"scale":0.7},
+        {"type":"label","text":"END 2","left":60.7,"top":13.7,"scale":0.7},
+        {"type":"select","label":"END1","name":"E1","left":44.7,"top":63.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57.6,"top":33.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true}
+      ],
+	  
+	  "offset__up": [
+        {"type":"input","label":"A","name":"END1 A","left":19.5,"top":82.5,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":13.3,"top":54.3,"scale":0.6,"order":2,"required":true},
+		{"type":"input","label":"A","name":"END2 A","left":76.9,"top":26.3,"scale":0.6,"order":3,"copy":"END1 A"},
+        {"type":"input","label":"B","name":"END2 B","left":81.4,"top":48.3,"scale":0.6,"order":4,"copy":"END1 B"},
+		{"type":"input","label":"LENGTH","name":"L","left":48.3,"top":93.6,"scale":0.6,"order":5,"required":true},
+        {"type":"input","label":"OFFSET","name":"X","left":66.8,"top":76.7,"scale":0.6,"order":6,"required":true},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":39,"top":64,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57,"top":50.9,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"input","label":"NECK1","name":"S1","left":19.5,"top":34.7,"scale":0.6,"order":9},
+        {"type":"input","label":"NECK2","name":"S2","left":55.3,"top":18.3,"scale":0.6,"order":10},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+        {"type":"label","text":"END 1","left":8.4,"top":66.9,"scale":0.7},
+        {"type":"label","text":"END 2","left":90.1,"top":66.9,"scale":0.7}
+
+      ],
+	  
+	  "offset__down": [
+        {"type":"input","label":"A","name":"END1 A","left":18.3,"top":27.2,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":12.5,"top":50.1,"scale":0.6,"order":2,"required":true},
+		{"type":"input","label":"A","name":"END2 A","left":77.4,"top":81.8,"scale":0.6,"order":3,"copy":"END1 A"},
+        {"type":"input","label":"B","name":"END2 B","left":82.1,"top":56.3,"scale":0.6,"order":4,"copy":"END1 B"},
+		{"type":"input","label":"LENGTH","name":"L","left":49.5,"top":20.3,"scale":0.6,"order":5,"required":true},
+        {"type":"input","label":"OFFSET","name":"X","left":80.1,"top":31.2,"scale":0.6,"order":6,"required":true},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":41.7,"top":45.6,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57.2,"top":59.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"input","label":"NECK1","name":"S1","left":27.7,"top":75.1,"scale":0.6,"order":9},
+        {"type":"input","label":"NECK2","name":"S2","left":58.5,"top":92.9,"scale":0.6,"order":10},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+        {"type":"label","text":"END 1","left":8.4,"top":66.9,"scale":0.7},
+        {"type":"label","text":"END 2","left":90.1,"top":66.9,"scale":0.7}
+
+      ],
+	  
+	  "offset__left": [
+        {"type":"input","label":"A","name":"END1 A","left":54,"top":93.1,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":77.5,"top":86.7,"scale":0.6,"order":2,"required":true},
+		{"type":"input","label":"A","name":"END2 A","left":48.7,"top":21.6,"scale":0.6,"order":3,"copy":"END1 A"},
+        {"type":"input","label":"B","name":"END2 B","left":28.1,"top":26.5,"scale":0.6,"order":4,"copy":"END1 B"},
+		{"type":"input","label":"LENGTH","name":"L","left":86.2,"top":56,"scale":0.6,"order":5,"required":true},
+        {"type":"input","label":"OFFSET","name":"X","left":74.3,"top":19,"scale":0.6,"order":6,"required":true},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":64.9,"top":68,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":53.8,"top":36.1,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"input","label":"NECK1","name":"S1","left":31.2,"top":80,"scale":0.6,"order":9},
+        {"type":"input","label":"NECK2","name":"S2","left":18.1,"top":42.1,"scale":0.6,"order":10},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+        {"type":"label","text":"END 1","left":28.6,"top":93.8,"scale":0.7},
+        {"type":"label","text":"END 2","left":28.6,"top":16.5,"scale":0.7}
+
+      ],
+	  "offset__right": [
+        {"type":"input","label":"A","name":"END1 A","left":48.9,"top":92.4,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":26.6,"top":85.3,"scale":0.6,"order":2,"required":true},
+		{"type":"input","label":"A","name":"END2 A","left":55.4,"top":19.4,"scale":0.6,"order":3,"copy":"END1 A"},
+        {"type":"input","label":"B","name":"END2 B","left":78.4,"top":25.6,"scale":0.6,"order":4,"copy":"END1 B"},
+		{"type":"input","label":"LENGTH","name":"L","left":14.5,"top":56,"scale":0.6,"order":5,"required":true},
+        {"type":"input","label":"OFFSET","name":"X","left":32.2,"top":31.9,"scale":0.6,"order":6,"required":true},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+		{"type":"select","label":"END1","name":"E1","left":45.3,"top":68.9,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57.1,"top":37,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"input","label":"NECK1","name":"S1","left":75.7,"top":80.2,"scale":0.6,"order":9},
+        {"type":"input","label":"NECK2","name":"S2","left":87.1,"top":41.6,"scale":0.6,"order":10},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+        {"type":"label","text":"END 1","left":28.6,"top":93.8,"scale":0.7},
+        {"type":"label","text":"END 2","left":28.6,"top":16.5,"scale":0.7}
+
+      ],
+
+      elbow: [
+        {"type":"input","label":"A","name":"END1 A","left":35.5,"top":78.5,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":14.8,"top":70.1,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"A","name":"END2 A","left":73,"top":36.5,"scale":0.6,"order":4,"copy":"END1 A"},
+        {"type":"input","label":"T1","name":"S1","left":57.1,"top":69.1,"scale":0.6,"order":5},
+        {"type":"input","label":"T2","name":"S2","left":65.7,"top":56.9,"scale":0.6,"order":6},
+        {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
+        {"type":"label","text":"END 2","left":74.4,"top":22.2,"scale":0.7},
+        {"type":"select","label":"END1","name":"E1","left":31.7,"top":50,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":31.7,"top":27.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true}
+      ],
+	  
+	  elbow45: [
+        {"type":"input","label":"A","name":"END1 A","left":54.9,"top":78.1,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":30.6,"top":73.8,"scale":0.6,"order":2,"required":true},
+		{"type":"label","text":"END 1","left":43.1,"top":93.5,"scale":0.7},
+        {"type":"input","label":"A","name":"END2 A","left":66.5,"top":21.6,"scale":0.6,"order":4,"copy":"END1 A"},
+        {"type":"input","label":"T1","name":"S1","left":77.4,"top":70.8,"scale":0.6,"order":5},
+        {"type":"input","label":"T2","name":"S2","left":85.5,"top":50.9,"scale":0.6,"order":6},
+		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"label","text":"END 2","left":43.1,"top":16.1,"scale":0.7},
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"input","label":"Angle","name":"X","left":72.5,"top":90,"scale":0.6,"order":1,"required":true,"default":"45"},
+        {"type":"select","label":"END1","name":"E1","left":20.1,"top":56.2,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":20.1,"top":29.2,"scale":0.6,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]}
+      ],
+
+      canvas: [
+        {"type":"input","label":"A","name":"END1 A","left":46.3,"top":75.3,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":7.3,"top":44.6,"scale":0.6,"order":2,"required":true},
+        {"type":"select","label":"END1","name":"E1","left":41,"top":5.8,"scale":0.6,"order":4,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":42.8,"top":31,"scale":0.6,"order":5,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]}
+      ],
+
+      endcap: [
+        {"type":"input","label":"A","name":"END1 A","left":52.1,"top":80.3,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":7.5,"top":57.5,"scale":0.6,"order":2,"required":true},
+        {"type":"select","label":"END1","name":"E1","left":55,"top":17.7,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+      ],
+
+      drainpan: [
+        {"type":"input","label":"A","name":"END1 A","left":32.2,"top":58.1,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":76.2,"top":72.3,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"Pan Depth","name":"X","left":49.2,"top":29.2,"scale":0.6,"order":3},
+      ],
+	  
+	  square2round: [
+        {"type":"input","label":"A","name":"END1 A","left":56.1,"top":77.7,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":29.3,"top":72.4,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"A","name":"END2 A","left":50.5,"top":24.9,"scale":0.6,"order":4,"required":true},
+        {"type":"label","text":"END 1","left":52.4,"top":93.9,"scale":0.7},
+        {"type":"label","text":"END 2","left":52.4,"top":15.6,"scale":0.7},
+		{"type":"input","label":"LENGTH","name":"Length","left":83.6,"top":48.6,"scale":0.6,"order":1,"required":true},
+        {"type":"select","label":"END1","name":"E1","left":19.5,"top":53.8,"scale":0.6,"order":3,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true}
+      ],
+
+      // ===== Transition variant layouts (EDIT THESE POSITIONS FOR EACH IMAGE) =====
+      // Your pins will change with the photo, so each variant gets its own layout key.
+      "transition__flat left": [
+		  {"type":"input","label":"A","name":"END1 A","left":58.2,"top":77.4,"scale":0.6,"order":1,"required":true},
+		  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true},
+		  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true},
+		  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21,"scale":0.6,"order":4,"required":true},
+		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":5},
+		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":6}, 
+		  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":999,"required":true},
+		  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+		  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"order": 15,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
+		  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		  {"type":"label","text":"END 1","left":51.6,"top":89.8,"scale":0.7},
+		  {"type":"label","text":"END 2","left":48.2,"top":12.9,"scale":0.7}
+		  
+      ],
+
+      "transition__center": [
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+		{"type":"input","label":"A","name":"END1 A","left":52.7,"top":82.9,"scale":0.6,"order":1,"required":true},
+		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true},
+		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true},
+		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27,"scale":0.6,"order":4,"required":true},
+		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":5},
+		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":5},
+		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":999,"required":true},
+		{"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"order": 15,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
+		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7}
+
+],
+
+      "transition__flat right": [
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+			  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"order": 15,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},  
+			  {"type":"input","label":"A","name":"END1 A","left":48.7,"top":84.3,"scale":0.6,"order":1,"required":true},
+			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true},
+			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true},
+			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true},
+			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":5},
+			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":5},
+			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":999,"required":true},
+			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7}
+
+
+      ],
+	  
+	  "garwood__center": [
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true},
+			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true},
+			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A"},
+			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B"},
+			  {"type":"select","label":"END1","name":"E1","left":15.8,"top":62.6,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":15.8,"top":38.8,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":999,"required":true},
+			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
+			  {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":49.1,"scale":0.6,"order":999}
+
+
+      ],
+	  "garwood__left": [
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true},
+			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true},
+			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A"},
+			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B"},
+			  {"type":"select","label":"END1","name":"E1","left":15.8,"top":62.6,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":15.8,"top":38.8,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":999,"required":true},
+			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
+			  {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":49.1,"scale":0.6,"order":999}
+
+
+      ],
+	  
+	  "garwood__right": [
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+			  {"type":"input","label":"A","name":"END1 A","left":49.1,"top":78.8,"scale":0.6,"order":1,"required":true},
+			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true},
+			  {"type":"input","label":"A","name":"END2 B","left":80.4,"top":30.2,"scale":0.6,"order":3,"required":true,"copy":"END1 A"},
+			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B"},
+			  {"type":"select","label":"END1","name":"E1","left":15.8,"top":62.6,"scale":0.6,"order":5,"required":true,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":15.8,"top":38.8,"scale":0.6,"order":6,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":999,"required":true},
+			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
+			   {"type":"input","label":"Extension Length","name":"X","left":18.8,"top":49.1,"scale":0.6,"order":999}
+
+
+      ],
+	  
+	  flatsheet: [
+        {"type":"input","label":"A","name":"END1 A","left":52.3,"top":92.2,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":18.8,"top":56.8,"scale":0.6,"order":2,"required":true},
+		],
+		
+		
+	takeoff: [
+        {"type":"input","label":"A","name":"END1 A","left":49.4,"top":83.4,"scale":0.6,"order":1,"required":true},
+        {"type":"input","label":"B","name":"END1 B","left":19.5,"top":79.1,"scale":0.6,"order":2,"required":true},
+        {"type":"input","label":"LENGTH","name":"L","left":17.2,"top":59.5,"scale":0.6,"order":5,"required":true},
+        {"type":"input","label":"A","name":"END2 A","left":54.8,"top":27.7,"scale":0.6,"order":3},
+        {"type":"input","label":"B","name":"END2 B","left":26.5,"top":34.6,"scale":0.6,"order":4},
+        {"type":"label","text":"END 1","left":49,"top":95.3,"scale":0.7},
+        {"type":"label","text":"END 2","left":49,"top":13.7,"scale":0.7},
+        {"type":"select","label":"END1","name":"E1","left":57.9,"top":63.2,"scale":0.5,"order":7,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":55.2,"top":40.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","3/4 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"order":6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"order":12,"options":["NO","R6","R8"],"default":"R6","required":true}
+      ],	
+    };
+
+    // ============================================================
+    // DOM
+    // ============================================================
+    const grid = document.getElementById("shapeGrid");
+    const home = document.getElementById("home");
+    const detail = document.getElementById("detail");
+    const shapeName = document.getElementById("shapeName");
+    const detailImg = document.getElementById("detailImg");
+    const backBtn = document.getElementById("backBtn");
+    const diagramWrap = document.getElementById("diagramWrap");
+    const statusEl = document.getElementById("status");
+
+    const editTools = document.getElementById("editTools");
+    const editHint = document.getElementById("editHint");
+
+    const addFieldBtn = document.getElementById("addFieldBtn");
+    const addLabelBtn = document.getElementById("addLabelBtn");
+    const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+
+    const pinSmallerBtn = document.getElementById("pinSmallerBtn");
+    const pinBiggerBtn = document.getElementById("pinBiggerBtn");
+    const pinResetBtn = document.getElementById("pinResetBtn");
+
+    const copyBtn = document.getElementById("copyBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+    // Variant UI
+    const variantPanel = document.getElementById("variantPanel");
+    const variantTitle = document.getElementById("variantTitle");
+    const variantButtons = document.getElementById("variantButtons");
+    const variantValueEl = document.getElementById("variantValue");
+
+    // Pending list UI
+    const pendingListEl = document.getElementById("pendingList");
+    const pendingSummaryEl = document.getElementById("pendingSummary");
+    const homeStatusEl = document.getElementById("homeStatus");
+    const sendAllBtn = document.getElementById("sendAllBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+
+    let currentShape = null;
+    let currentVariant = ""; // for variant shapes
+    let selectedEl = null;   // can be .pin or .pin-label
+
+    // Submitting Popup
+    const sendingModal = document.getElementById("sendingModal");
+    const sendingText = document.getElementById("sendingText");
+
+    function showSending(text = "SENDING…"){
+      if (sendingText) sendingText.textContent = text;
+      sendingModal.classList.remove("hidden");
+    }
+    function hideSending(){
+      sendingModal.classList.add("hidden");
+    }
+
+    // Send Info Modal refs
+    const sendInfoModal  = document.getElementById("sendInfoModal");
+    const sendUserNameEl = document.getElementById("sendUserName");
+    const sendListNameEl = document.getElementById("sendListName");
+    const sendProjectEl  = document.getElementById("sendProject");
+    const sendCancelBtn  = document.getElementById("sendCancelBtn");
+    const sendConfirmBtn = document.getElementById("sendConfirmBtn");
+
+    function openSendInfoModal(){
+      sendUserNameEl.value = localStorage.getItem("lastSenderName") || "";
+      sendListNameEl.value = localStorage.getItem("lastListName") || "";
+      sendProjectEl.value  = localStorage.getItem("lastProject") || "";
+
+      sendInfoModal.classList.remove("hidden");
+      setTimeout(() => sendUserNameEl.focus(), 0);
+    }
+    function closeSendInfoModal(){
+      sendInfoModal.classList.add("hidden");
+    }
+
+    // ============================================================
+    // STORAGE (layouts + pending queue)
+    // ============================================================
+    function layoutKeyFor(shapeId, variant){
+      const hasVariants = !!VARIANT_CONFIG[shapeId];
+      if (!hasVariants) return shapeId;
+      const v = (variant || "").trim() || (VARIANT_CONFIG[shapeId].default || "");
+      return `${shapeId}__${v}`;
+    }
+
+    const storageKey = (layoutKey) => `ductLayout:${layoutKey}`;
+    const pendingKey = () => `ductPendingQueue:v1`;
+    const lastVariantKey = (shapeId) => `ductVariant:${shapeId}`;
+
+    function loadSavedLayoutByKey(layoutKey){
+      try {
+        const raw = localStorage.getItem(storageKey(layoutKey));
+        if (!raw) return null;
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : null;
+      } catch {
+        return null;
+      }
+    }
+    function saveLayoutByKey(layoutKey, layout){
+      localStorage.setItem(storageKey(layoutKey), JSON.stringify(layout));
+    }
+
+    function loadPending(){
+      try {
+        const raw = localStorage.getItem(pendingKey());
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      } catch {
+        return [];
+      }
+    }
+    function savePending(arr){
+      localStorage.setItem(pendingKey(), JSON.stringify(arr));
+    }
+
+    function uid(){
+      return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2) + Date.now()));
+    }
+
+    // ============================================================
+    // UI FLOW
+    // ============================================================
+    function showHome(){
+      detail.classList.add("hidden");
+      home.classList.remove("hidden");
+      currentShape = null;
+      currentVariant = "";
+      statusEl.textContent = "";
+      selectedEl = null;
+      renderPending();
+    }
+
+    function getVariantConfig(shapeId){
+      return VARIANT_CONFIG[shapeId] || null;
+    }
+
+    function buildVariantButtons(cfg, activeValue){
+      variantButtons.innerHTML = "";
+      cfg.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "seg-btn";
+        btn.dataset.value = opt.value;
+        btn.textContent = opt.label;
+        btn.classList.toggle("active", opt.value === activeValue);
+        btn.addEventListener("click", () => setVariant(opt.value));
+        variantButtons.appendChild(btn);
+      });
+    }
+
+    function variantOption(shapeId, value){
+      const cfg = getVariantConfig(shapeId);
+      if (!cfg) return null;
+      return cfg.options.find(o => o.value === value) || null;
+    }
+
+    function snapshotPinValues(){
+	  const out = {};
+	  const pins = [...diagramWrap.querySelectorAll(".pin")];
+
+	  pins.forEach(pin => {
+		// text input
+		const textInput = pin.querySelector('input[type="text"]');
+		if (textInput?.name) {
+		  out[textInput.name] = textInput.value;
+		}
+
+		// select
+		const select = pin.querySelector("select");
+		if (select?.name) {
+		  out[select.name] = select.value;
+		}
+
+		// toggle / option group hidden value
+		const hidden = pin.querySelector('input[type="hidden"]');
+		if (hidden?.name) {
+		  out[hidden.name] = hidden.value;
+		}
+	  });
+
+	  return out;
+	}
+
+    function restorePinValues(values){
+	  const pins = [...diagramWrap.querySelectorAll(".pin")];
+
+	  pins.forEach(pin => {
+		// ---------- text input ----------
+		const textInput = pin.querySelector('input[type="text"]');
+		if (textInput?.name && Object.prototype.hasOwnProperty.call(values, textInput.name)) {
+		  textInput.value = values[textInput.name] ?? "";
+		  textInput.dispatchEvent(new Event("input", { bubbles: true }));
+		}
+
+		// ---------- select ----------
+		const select = pin.querySelector("select");
+		if (select?.name && Object.prototype.hasOwnProperty.call(values, select.name)) {
+		  select.value = values[select.name] ?? "";
+		  select.dispatchEvent(new Event("change", { bubbles: true }));
+		}
+
+		// ---------- toggle ----------
+		const hidden = pin.querySelector('input[type="hidden"]');
+		const checkbox = pin.querySelector('.toggle input[type="checkbox"]');
+		if (hidden && checkbox && hidden.name && Object.prototype.hasOwnProperty.call(values, hidden.name)) {
+		  const savedVal = values[hidden.name];
+		  const onVal = hidden.dataset.onValue ?? "YES";
+		  const offVal = hidden.dataset.offValue ?? "NO";
+
+		  hidden.value = savedVal ?? offVal;
+		  checkbox.checked = String(savedVal) === String(onVal);
+		  pin.classList.toggle("toggle-on", checkbox.checked);
+		}
+
+		// ---------- option group ----------
+		const optionWrap = pin.querySelector(".option-group");
+		if (hidden && optionWrap && hidden.name && Object.prototype.hasOwnProperty.call(values, hidden.name)) {
+		  const savedVal = String(values[hidden.name] ?? "");
+		  hidden.value = savedVal;
+
+		  const radios = [...optionWrap.querySelectorAll('input[type="radio"]')];
+		  radios.forEach(radio => {
+			radio.checked = String(radio.value) === savedVal;
+		  });
+		}
+	  });
+	}
+
+    function setVariant(value){
+      if (!currentShape) return;
+      const cfg = getVariantConfig(currentShape.id);
+      if (!cfg) return;
+
+      const opt = variantOption(currentShape.id, value);
+      const v = opt ? opt.value : (cfg.default || "");
+      currentVariant = v;
+
+      // persist last used variant for this shape
+      localStorage.setItem(lastVariantKey(currentShape.id), v);
+
+      // set hidden field name/value
+      variantValueEl.name = cfg.fieldName || "variant";
+      variantValueEl.value = v;
+
+      // update button active state
+      [...variantButtons.querySelectorAll(".seg-btn")].forEach(b => {
+        b.classList.toggle("active", b.dataset.value === v);
+      });
+
+      // snapshot current pin values before rerender
+      const prev = snapshotPinValues();
+
+      // swap photo
+      if (opt?.img) detailImg.src = opt.img;
+
+      // swap layout
+      const lk = layoutKeyFor(currentShape.id, v);
+      const saved = loadSavedLayoutByKey(lk);
+      const fallback = defaultLayouts[lk] || [];
+      renderLayout(saved || fallback);
+
+      // restore common fields across variants (same names)
+      restorePinValues(prev);
+    }
+
+    function showDetail(shape, variantOverride = ""){
+      currentShape = shape;
+      shapeName.textContent = shape.name;
+      statusEl.textContent = "";
+      selectedEl = null;
+
+      if (EDIT_MODE){
+        editTools.style.display = "flex";
+        editHint.style.display = "block";
+      } else {
+        editTools.style.display = "none";
+        editHint.style.display = "none";
+      }
+
+      const cfg = getVariantConfig(shape.id);
+
+      if (cfg){
+        variantPanel.classList.remove("hidden");
+        variantTitle.textContent = cfg.title || "Options";
+
+        // pick variant: override -> last used -> default
+        const lastUsed = localStorage.getItem(lastVariantKey(shape.id)) || "";
+        const desired = (variantOverride || "").trim() || lastUsed || (cfg.default || "");
+        buildVariantButtons(cfg, desired);
+
+        // set base (will set image + layout)
+        currentVariant = desired;
+        variantValueEl.name = cfg.fieldName || "variant";
+        variantValueEl.value = desired;
+
+        // initialize image + layout
+        const opt = variantOption(shape.id, desired);
+        detailImg.src = opt?.img || shape.img;
+
+        const lk = layoutKeyFor(shape.id, desired);
+        const saved = loadSavedLayoutByKey(lk);
+        const fallback = defaultLayouts[lk] || [];
+        renderLayout(saved || fallback);
+      } else {
+        variantPanel.classList.add("hidden");
+        variantButtons.innerHTML = "";
+        variantValueEl.value = "";
+        variantValueEl.name = "variant";
+        currentVariant = "";
+
+        detailImg.src = shape.img;
+
+        const lk = layoutKeyFor(shape.id, "");
+        const saved = loadSavedLayoutByKey(lk);
+        const fallback = defaultLayouts[lk] || [];
+        renderLayout(saved || fallback);
+      }
+
+      home.classList.add("hidden");
+      detail.classList.remove("hidden");
+    
+		  // ✅ Scroll to top
+		  window.scrollTo({ top: 0, behavior: "smooth" });
+		
+	  
+    }
+
+    // Build home tiles
+    shapes.forEach(shape => {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+
+      const img = document.createElement("img");
+      img.src = shape.thumb || shape.img;
+      img.alt = shape.name;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = shape.name;
+
+      tile.appendChild(img);
+      tile.appendChild(label);
+      tile.addEventListener("click", () => showDetail(shape));
+      grid.appendChild(tile);
+    });
+
+    backBtn.addEventListener("click", showHome);
+
+    // ============================================================
+    // SELECTION + SCALE HELPERS
+    // ============================================================
+    function clearSelection(){
+      if (selectedEl) selectedEl.classList.remove("selected");
+      selectedEl = null;
+    }
+
+    function selectElement(el){
+      if (selectedEl) selectedEl.classList.remove("selected");
+      selectedEl = el;
+      if (selectedEl) selectedEl.classList.add("selected");
+    }
+
+    function getScale(el){
+      const v = el.style.getPropertyValue("--pinScale");
+      const n = parseFloat(v);
+      return Number.isFinite(n) && n > 0 ? n : 1;
+    }
+
+    function setScale(el, scale){
+      const clamped = Math.max(0.4, Math.min(1.8, scale));
+      el.style.setProperty("--pinScale", clamped.toFixed(2));
+    }
+
+    function clearAllOverlayElements(){
+      diagramWrap.querySelectorAll(".pin, .pin-label").forEach(el => el.remove());
+      clearSelection();
+    }
+
+    diagramWrap.addEventListener("click", (e) => {
+      if (e.target.closest(".pin") || e.target.closest(".pin-label")) return;
+      clearSelection();
+    });
+
+    // ============================================================
+    // CREATE ELEMENTS
+    // ============================================================
+    function createInputPin(data){
+		  const pin = document.createElement("div");
+		  pin.className = "pin";
+		  pin.style.left = data.left + "%";
+		  pin.style.top  = data.top + "%";
+		  setScale(pin, data.scale ?? 1);
+
+		  const lbl = document.createElement("label");
+		  lbl.textContent = data.label;
+
+		  const input = document.createElement("input");
+		  input.name = data.name;
+
+		  input.type = "text";
+		  input.inputMode = "decimal";
+		  input.enterKeyHint = "next";
+		  input.autocorrect = "off";
+		  input.autocapitalize = "off";
+		  input.spellcheck = false;
+
+		  input.placeholder = "in";
+		  input.required = !!data.required;
+		  input.tabIndex = Number.isFinite(data.order) ? data.order : 0;
+
+		  if (data.default !== undefined && input.value === "") {
+			input.value = data.default;
+		  }
+
+		  pin.appendChild(lbl);
+		  pin.appendChild(input);
+
+		  // COPY FEATURE
+		  if (data.copy) {
+			let userOverrodeCopy = false;
+			let isProgrammaticUpdate = false;
+
+			input.addEventListener("input", () => {
+			  if (isProgrammaticUpdate) return;
+			  userOverrodeCopy = true;
+			});
+
+			setTimeout(() => {
+			  const source = document.querySelector(`input[name="${data.copy}"]`);
+			  if (!source) return;
+
+			  source.addEventListener("input", () => {
+				if (userOverrodeCopy) return;
+
+				isProgrammaticUpdate = true;
+				input.value = source.value;
+				input.dispatchEvent(new Event("input", { bubbles: true }));
+				isProgrammaticUpdate = false;
+			  });
+			}, 0);
+		  }
+
+		  pin.addEventListener("click", (e) => { selectElement(pin); e.stopPropagation(); });
+		  return pin;
+		}
+
+    function createTogglePin(data){
+	  const pin = document.createElement("div");
+	  pin.className = "pin";
+	  pin.style.left = data.left + "%";
+	  pin.style.top  = data.top + "%";
+	  setScale(pin, data.scale ?? 1);
+
+	  const lbl = document.createElement("label");
+	  lbl.textContent = data.label;
+
+	  const hidden = document.createElement("input");
+	  hidden.type = "hidden";
+	  hidden.name = data.name;
+
+	  const onVal = data.onValue ?? "YES";
+	  const offVal = data.offValue ?? "NO";
+	  hidden.dataset.onValue = onVal;
+	  hidden.dataset.offValue = offVal;
+	  hidden.value = data.default === true ? onVal : offVal;
+
+	  const wrap = document.createElement("div");
+	  wrap.className = "toggle";
+
+	  const cb = document.createElement("input");
+	  cb.type = "checkbox";
+	  cb.checked = !!data.default;
+
+	  const knob = document.createElement("span");
+	  knob.className = "knob";
+
+	  if (cb.checked) pin.classList.add("toggle-on");
+
+	  cb.addEventListener("change", () => {
+		hidden.value = cb.checked ? onVal : offVal;
+		pin.classList.toggle("toggle-on", cb.checked);
+	  });
+
+	  wrap.appendChild(cb);
+	  wrap.appendChild(knob);
+
+	  pin.appendChild(lbl);
+	  pin.appendChild(hidden);
+	  pin.appendChild(wrap);
+
+	  pin.style.cursor = "pointer";
+	  cb.addEventListener("click", (e) => e.stopPropagation());
+
+	  pin.addEventListener("click", (e) => {
+		selectElement(pin);
+		e.stopPropagation();
+		cb.checked = !cb.checked;
+		cb.dispatchEvent(new Event("change", { bubbles: true }));
+	  });
+
+	  return pin;
+	}
+
+   function createOptionGroupPin(data){
+	  const pin = document.createElement("div");
+	  pin.className = "pin";
+	  pin.style.left = data.left + "%";
+	  pin.style.top  = data.top + "%";
+	  setScale(pin, data.scale ?? 1);
+
+	  const lbl = document.createElement("label");
+	  lbl.textContent = (data.label || "").toUpperCase();
+
+	  const hidden = document.createElement("input");
+	  hidden.type = "hidden";
+	  hidden.name = data.name;
+
+	  const wrap = document.createElement("div");
+	  wrap.className = "option-group";
+
+	  // NEW: vertical mode
+	  if (data.direction === "vertical"){
+		wrap.classList.add("vertical");
+	  }
+
+	  (data.options || []).forEach(optVal => {
+	  const optionLabel = document.createElement("label");
+	  optionLabel.className = "opt-row"; // optional (for styling)
+
+	  const radio = document.createElement("input");
+	  radio.type = "radio";
+	  radio.name = data.name + "_radio"; // internal only
+	  radio.value = optVal;
+
+	  if (data.default === optVal){
+		radio.checked = true;
+		hidden.value = optVal;
+	  }
+
+	  radio.addEventListener("change", () => {
+		hidden.value = radio.value;
+	  });
+
+	  // ✅ FULL ROW CLICKABLE:
+	  // prevent double-toggles when clicking directly on the input
+	  radio.addEventListener("click", (e) => e.stopPropagation());
+
+	 
+
+	  optionLabel.appendChild(radio);
+	  optionLabel.append(optVal);
+
+	  wrap.appendChild(optionLabel);
+	});
+
+	  if (data.required){
+		hidden.required = true;
+	  }
+
+	  pin.appendChild(lbl);
+	  pin.appendChild(hidden);
+	  pin.appendChild(wrap);
+
+	  pin.addEventListener("click", (e) => {
+		selectElement(pin);
+		e.stopPropagation();
+	  });
+
+	  return pin;
+	}
+
+    function createSelectPin(data){
+      const pin = document.createElement("div");
+      pin.className = "pin";
+      pin.style.left = data.left + "%";
+      pin.style.top  = data.top + "%";
+      setScale(pin, data.scale ?? 1);
+
+      const lbl = document.createElement("label");
+      lbl.textContent = data.label;
+
+      const select = document.createElement("select");
+      select.name = data.name;
+      select.required = !!data.required;
+      select.tabIndex = Number.isFinite(data.order) ? data.order : 0;
+
+      const ph = document.createElement("option");
+      ph.value = "";
+      ph.textContent = data.placeholder || "Select";
+      ph.disabled = true;
+      ph.selected = true;
+      select.appendChild(ph);
+
+      (data.options || []).forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        select.appendChild(opt);
+      });
+
+      if (data.default !== undefined && select.value === "") {
+        select.value = String(data.default);
+      }
+
+      pin.appendChild(lbl);
+      pin.appendChild(select);
+
+      pin.addEventListener("click", (e) => { selectElement(pin); e.stopPropagation(); });
+      return pin;
+    }
+
+    function createTextLabel(data){
+      const el = document.createElement("div");
+      el.className = "pin-label";
+      el.textContent = data.text;
+      el.style.left = data.left + "%";
+      el.style.top  = data.top + "%";
+      setScale(el, data.scale ?? 1);
+
+      el.addEventListener("click", (e) => { selectElement(el); e.stopPropagation(); });
+      return el;
+    }
+
+    // ============================================================
+    // RENDER + SERIALIZE
+    // ============================================================
+    function renderLayout(layout){
+      clearAllOverlayElements();
+
+      // render controls + labels
+      const items = (layout || []).slice().sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999));
+
+      items.forEach(item => {
+        if (item.type === "input")       diagramWrap.appendChild(createInputPin(item));
+        else if (item.type === "select") diagramWrap.appendChild(createSelectPin(item));
+        else if (item.type === "toggle") diagramWrap.appendChild(createTogglePin(item));
+        else if (item.type === "optionGroup") diagramWrap.appendChild(createOptionGroupPin(item));
+        else if (item.type === "label")  diagramWrap.appendChild(createTextLabel(item));
+      });
+    }
+
+    function layoutFromDOM(){
+      const pins = [...diagramWrap.querySelectorAll(".pin")].map(p => {
+        const lbl = p.querySelector("label")?.textContent?.trim() || "";
+
+        // detect type
+        const hasSelect = !!p.querySelector("select");
+        const hasToggle = !!p.querySelector(".toggle");
+        const hasOptionGroup = !!p.querySelector(".option-group");
+
+        if (hasToggle){
+          const hidden = p.querySelector('input[type="hidden"]');
+          return {
+            type: "toggle",
+            label: lbl,
+            name: hidden?.name || "",
+            left: parseFloat(p.style.left),
+            top: parseFloat(p.style.top),
+            scale: getScale(p),
+          };
+        }
+
+        if (hasOptionGroup){
+          const hidden = p.querySelector('input[type="hidden"]');
+          return {
+            type: "optionGroup",
+            label: lbl,
+            name: hidden?.name || "",
+            left: parseFloat(p.style.left),
+            top: parseFloat(p.style.top),
+            scale: getScale(p),
+          };
+        }
+
+        if (hasSelect){
+          const sel = p.querySelector("select");
+          return {
+            type: "select",
+            label: lbl,
+            name: sel?.name || "",
+            left: parseFloat(p.style.left),
+            top: parseFloat(p.style.top),
+            scale: getScale(p),
+            order: sel?.tabIndex || 0,
+          };
+        }
+
+        // default to input
+        const inp = p.querySelector('input:not([type="hidden"])');
+        return {
+          type: "input",
+          label: lbl,
+          name: inp?.name || "",
+          left: parseFloat(p.style.left),
+          top: parseFloat(p.style.top),
+          scale: getScale(p),
+          order: inp?.tabIndex || 0,
+        };
+      });
+
+      const labels = [...diagramWrap.querySelectorAll(".pin-label")].map(l => ({
+        type: "label",
+        text: l.textContent.trim(),
+        left: parseFloat(l.style.left),
+        top: parseFloat(l.style.top),
+        scale: getScale(l),
+      }));
+
+      return [...pins, ...labels];
+    }
+
+    // ============================================================
+    // EDIT MODE ACTIONS
+    // ============================================================
+    function promptField(){
+      const label = (prompt("Label (what user sees), e.g. A, Rise, Angle:") || "").trim();
+      if (!label) return null;
+
+      const name = (prompt("Field name (used in Google Sheet), e.g. rise, angleDeg, throatWidth:") || "").trim();
+      if (!name) return null;
+
+      return { label, name };
+    }
+
+    addFieldBtn.addEventListener("click", () => {
+      if (!EDIT_MODE || !currentShape) return;
+      const f = promptField();
+      if (!f) return;
+
+      const pin = createInputPin({ type:"input", ...f, left: 50, top: 50, scale: 1, order: 999 });
+      diagramWrap.appendChild(pin);
+      selectElement(pin);
+      statusEl.textContent = "Added input. Drag/resize it, then Copy/Save.";
+    });
+
+    addLabelBtn.addEventListener("click", () => {
+      if (!EDIT_MODE || !currentShape) return;
+      const text = (prompt("Label text (e.g. END 1):") || "").trim();
+      if (!text) return;
+
+      const lab = createTextLabel({ type:"label", text, left: 50, top: 50, scale: 1, order: 999 });
+      diagramWrap.appendChild(lab);
+      selectElement(lab);
+      statusEl.textContent = "Added label. Drag/resize it, then Copy/Save.";
+    });
+
+    deleteSelectedBtn.addEventListener("click", () => {
+      if (!EDIT_MODE || !selectedEl) return;
+      selectedEl.remove();
+      selectedEl = null;
+      statusEl.textContent = "Deleted selected item.";
+    });
+
+    function resizeSelected(delta){
+      if (!EDIT_MODE || !selectedEl) return;
+      setScale(selectedEl, getScale(selectedEl) + delta);
+      statusEl.textContent = `Size: ${getScale(selectedEl).toFixed(2)}×`;
+    }
+
+    pinBiggerBtn.addEventListener("click", () => resizeSelected(+0.10));
+    pinSmallerBtn.addEventListener("click", () => resizeSelected(-0.10));
+    pinResetBtn.addEventListener("click", () => {
+      if (!EDIT_MODE || !selectedEl) return;
+      setScale(selectedEl, 1);
+      statusEl.textContent = "Size reset to 1×";
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!EDIT_MODE || !currentShape) return;
+
+      const layout = layoutFromDOM();
+      const text =
+        "[\n" +
+        layout.map(obj => "  " + JSON.stringify(obj)).join(",\n") +
+        "\n]";
+
+      const lk = layoutKeyFor(currentShape.id, currentVariant);
+      console.log(`LAYOUT for "${lk}":\n${text}`);
+
+      try {
+        await navigator.clipboard.writeText(text);
+        statusEl.textContent = "Copied layout ✅ (one pin per line)";
+      } catch {
+        statusEl.textContent = "Could not copy ❌ (see console)";
+      }
+    });
+
+    saveBtn.addEventListener("click", () => {
+      if (!EDIT_MODE || !currentShape) return;
+      const lk = layoutKeyFor(currentShape.id, currentVariant);
+      saveLayoutByKey(lk, layoutFromDOM());
+      statusEl.textContent = `Saved layout ✅ (${lk})`;
+    });
+
+    clearBtn.addEventListener("click", () => {
+      if (!EDIT_MODE || !currentShape) return;
+      if (!confirm("Clear all pins/labels for this shape (and variant if applicable)?")) return;
+
+      const lk = layoutKeyFor(currentShape.id, currentVariant);
+      renderLayout([]);
+      localStorage.removeItem(storageKey(lk));
+      statusEl.textContent = `Cleared layout (${lk}).`;
+    });
+
+    // ============================================================
+    // DRAG (works for both pins and labels)
+    // ============================================================
+    function enableDragging(){
+      if (!EDIT_MODE) return;
+
+      let active = null;
+
+      diagramWrap.addEventListener("pointerdown", (e) => {
+        const el = e.target.closest(".pin, .pin-label");
+        if (!el) return;
+
+        active = el;
+        selectElement(el);
+
+        el.classList.add("dragging");
+        el.setPointerCapture(e.pointerId);
+      });
+
+      diagramWrap.addEventListener("pointermove", (e) => {
+        if (!active) return;
+
+        const rect = diagramWrap.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+
+        const leftPct = Math.max(0, Math.min(100, x * 100));
+        const topPct  = Math.max(0, Math.min(100, y * 100));
+
+        active.style.left = leftPct.toFixed(1) + "%";
+        active.style.top  = topPct.toFixed(1) + "%";
+      });
+
+      diagramWrap.addEventListener("pointerup", () => {
+        if (!active) return;
+        active.classList.remove("dragging");
+        active = null;
+      });
+    }
+    enableDragging();
+
+    // ============================================================
+    // PENDING QUEUE (HOME LIST)
+    // ============================================================
+    function summarizeDims(entry){
+      const cfg = SUMMARY_CONFIG[entry.shapeId];
+      if (!cfg) return [];
+
+      const values = {};
+      for (const [alias, fieldName] of Object.entries(cfg.fields)){
+        values[alias] = (entry[fieldName] ?? "").toString().trim();
+      }
+
+      const required = Object.values(values).some(v => v !== "");
+      if (!required) return [];
+
+      const line = cfg.format(values).replace(/\s+/g, " ").trim();
+      return line ? [line] : [];
+    }
+
+    function renderPending(){
+      const pending = loadPending();
+      pendingListEl.innerHTML = "";
+      homeStatusEl.textContent = "";
+
+      if (!pending.length){
+        pendingSummaryEl.textContent = "No pending items. Add fittings, then send when ready.";
+        return;
+      }
+
+      pendingSummaryEl.textContent = `${pending.length} item(s) pending.`;
+
+      pending.forEach((entry, idx) => {
+        const card = document.createElement("div");
+        card.className = "pending-card";
+
+        const top = document.createElement("div");
+        top.className = "pending-top";
+
+        const fit = document.createElement("div");
+        fit.className = "fit";
+        fit.textContent = `${idx+1}. ${entry.shapeName || entry.shapeId || "Fitting"}`;
+
+        const meta = document.createElement("div");
+        meta.className = "metaLine";
+        const vtxt = entry.variant ? ` | ${String(entry.variant).toUpperCase()}` : "";
+        meta.textContent = `Tag: ${entry.tag || "—"} | QTY: ${entry.qty || "—"}${vtxt}`;
+
+        top.appendChild(fit);
+        top.appendChild(meta);
+
+        const kv = document.createElement("div");
+        kv.className = "kv";
+
+        const chips = summarizeDims(entry);
+        if (!chips.length){
+          const none = document.createElement("span");
+          none.className = "chip";
+          none.textContent = "(no dimensions?)";
+          kv.appendChild(none);
+        } else {
+          chips.forEach(t => {
+            const c = document.createElement("span");
+            c.className = "chip";
+            c.innerHTML = t;
+            kv.appendChild(c);
+          });
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "pending-actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => editPending(entry.pendingId));
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "btn danger";
+        removeBtn.textContent = "Remove";
+        removeBtn.addEventListener("click", () => removePending(entry.pendingId));
+
+        actions.appendChild(editBtn);
+        actions.appendChild(removeBtn);
+
+        card.appendChild(top);
+        card.appendChild(kv);
+        card.appendChild(actions);
+
+        pendingListEl.appendChild(card);
+      });
+    }
+
+    function removePending(pendingId){
+      const pending = loadPending().filter(x => x.pendingId !== pendingId);
+      savePending(pending);
+      renderPending();
+    }
+
+    function clearPending(){
+      savePending([]);
+      renderPending();
+    }
+	function populatePinsFromEntry(entry){
+	  const pins = [...diagramWrap.querySelectorAll(".pin")];
+
+	  pins.forEach(pin => {
+		// ---------- text input ----------
+		const textInput = pin.querySelector('input[type="text"]');
+		if (textInput && textInput.name && Object.prototype.hasOwnProperty.call(entry, textInput.name)) {
+		  textInput.value = entry[textInput.name] ?? "";
+		  textInput.dispatchEvent(new Event("input", { bubbles: true }));
+		}
+
+		// ---------- select ----------
+		const select = pin.querySelector("select");
+		if (select && select.name && Object.prototype.hasOwnProperty.call(entry, select.name)) {
+		  select.value = entry[select.name] ?? "";
+		  select.dispatchEvent(new Event("change", { bubbles: true }));
+		}
+
+		// ---------- toggle ----------
+		const hiddenToggle = pin.querySelector('input[type="hidden"]');
+		const checkbox = pin.querySelector('.toggle input[type="checkbox"]');
+		if (hiddenToggle && checkbox && hiddenToggle.name && Object.prototype.hasOwnProperty.call(entry, hiddenToggle.name)) {
+		  const savedVal = entry[hiddenToggle.name];
+		  const onVal = hiddenToggle.dataset.onValue ?? "YES";
+		  const offVal = hiddenToggle.dataset.offValue ?? "NO";
+
+		  hiddenToggle.value = savedVal ?? offVal;
+		  checkbox.checked = String(savedVal) === String(onVal);
+		  pin.classList.toggle("toggle-on", checkbox.checked);
+		}
+
+		// ---------- option group ----------
+		const optionWrap = pin.querySelector(".option-group");
+		if (hiddenToggle && optionWrap && hiddenToggle.name && Object.prototype.hasOwnProperty.call(entry, hiddenToggle.name)) {
+		  const savedVal = String(entry[hiddenToggle.name] ?? "");
+		  hiddenToggle.value = savedVal;
+
+		  const radios = [...optionWrap.querySelectorAll('input[type="radio"]')];
+		  radios.forEach(radio => {
+			radio.checked = String(radio.value) === savedVal;
+		  });
+		}
+	  });
+	}
+    function editPending(pendingId){
+	  const pending = loadPending();
+	  const entry = pending.find(x => x.pendingId === pendingId);
+	  if (!entry) return;
+
+	  const shape = shapes.find(s => s.id === entry.shapeId) || {
+		id: entry.shapeId,
+		name: entry.shapeName || entry.shapeId,
+		img: ""
+	  };
+
+	  showDetail(shape, entry.variant || "");
+
+	  requestAnimationFrame(() => {
+		const form = document.getElementById("measureForm");
+
+		// If variant shape, set it FIRST because it re-renders the layout
+		const cfg = getVariantConfig(entry.shapeId);
+		if (cfg && entry.variant){
+		  setVariant(entry.variant);
+		}
+
+		requestAnimationFrame(() => {
+		  form.tag.value = entry.tag || "";
+		  form.qty.value = entry.qty || 1;
+		  form.notes.value = entry.notes || "";
+
+		  populatePinsFromEntry(entry);
+
+		  form.dataset.editPendingId = pendingId;
+		  statusEl.textContent = "Editing pending item. Submit to update it.";
+		});
+	  });
+	}
+
+    // ============================================================
+    // SEND ALL TO SHEET
+    // ============================================================
+    async function postOne(entry){
+      const res = await fetch(ENDPOINT_URL, {
+        method: "POST",
+        body: JSON.stringify(entry)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return true;
+    }
+
+    async function sendAllPending(senderName, project, listname){
+      const pending = loadPending();
+
+      if (!pending.length){
+        homeStatusEl.textContent = "Nothing to send.";
+        return;
+      }
+
+      showSending(`SENDING… (0/${pending.length})`);
+      homeStatusEl.textContent = `Sending ${pending.length}...`;
+
+      const remaining = [];
+      let sent = 0;
+
+      try {
+        for (let i = 0; i < pending.length; i++){
+          const entry = pending[i];
+
+          try {
+            const payload = {
+              ...entry,
+              tag: String(i + 1),
+              senderName,
+              project,
+              listname
+            };
+
+            await postOne(payload);
+
+            sent++;
+            homeStatusEl.textContent = `Sent ${sent}/${pending.length}...`;
+            showSending(`SENDING… (${sent}/${pending.length})`);
+
+          } catch (err){
+            console.error("Send failed for entry:", entry, err);
+            remaining.push(entry);
+          }
+        }
+
+        savePending(remaining);
+        renderPending();
+
+        if (remaining.length === 0){
+          homeStatusEl.textContent = `All sent ✅ (${sent})`;
+        } else {
+          homeStatusEl.textContent = `Sent ${sent}. ${remaining.length} failed ❌ (kept in pending)`;
+        }
+
+      } finally {
+        hideSending();
+      }
+    }
+
+    sendAllBtn.addEventListener("click", () => {
+      const pending = loadPending();
+      if (!pending.length){
+        homeStatusEl.textContent = "Nothing to send.";
+        return;
+      }
+      openSendInfoModal();
+    });
+
+    sendCancelBtn.addEventListener("click", () => closeSendInfoModal());
+
+    sendConfirmBtn.addEventListener("click", () => {
+      const name = (sendUserNameEl.value || "").trim();
+      const project = (sendProjectEl.value || "").trim();
+      const listName = (sendListNameEl.value || "").trim();
+
+      if (!name || !project || !listName){
+        alert("Please enter your name, project, and list name.");
+        return;
+      }
+
+      localStorage.setItem("lastSenderName", name);
+      localStorage.setItem("lastProject", project);
+      localStorage.setItem("lastListName", listName);
+
+      closeSendInfoModal();
+      sendAllPending(name, project, listName);
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+      if (!confirm("Clear ALL pending submissions?")) return;
+      clearPending();
+      homeStatusEl.textContent = "Cleared.";
+    });
+
+    // ============================================================
+    // SUBMIT: ADD TO PENDING (or update if editing)
+    // ============================================================
+    document.getElementById("measureForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!currentShape) {
+        statusEl.textContent = "No shape selected ❌";
+        return;
+      }
+
+      const form = e.target;
+      if (!form.reportValidity()) return;
+
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      data.qty = parseInt(data.qty, 10);
+      if (!Number.isInteger(data.qty) || data.qty < 1) {
+        statusEl.textContent = "QTY must be 1 or greater ❌";
+        return;
+      }
+
+      data.shapeId = currentShape.id;
+      data.shapeName = currentShape.name;
+      data.submittedAt = new Date().toLocaleString();
+
+      // Ensure variant is stored only when used (cleaner submissions)
+      const cfg = getVariantConfig(currentShape.id);
+      if (!cfg) {
+        delete data.variant;
+      } else {
+        // if config uses a different fieldName, normalize to `variant` too if you want
+        // (keeping as whatever fieldName is set)
+      }
+
+      const pending = loadPending();
+
+      const editId = form.dataset.editPendingId || "";
+      if (editId){
+        const idx = pending.findIndex(x => x.pendingId === editId);
+        if (idx >= 0){
+          data.pendingId = editId;
+          pending[idx] = data;
+          statusEl.textContent = "Updated pending ✅";
+        } else {
+          data.pendingId = uid();
+          pending.push(data);
+          statusEl.textContent = "Added to pending ✅";
+        }
+        delete form.dataset.editPendingId;
+      } else {
+        data.pendingId = uid();
+        pending.push(data);
+        statusEl.textContent = "Added to pending ✅";
+      }
+
+      savePending(pending);
+
+      form.reset();
+      form.qty.value = 1;
+      showHome();
+    });
+
+    // Start on home
+    showHome();
+
+    // ============================================================
+    // "Next" behavior through pin inputs
+    // ============================================================
+    function orderedPinInputs(){
+      const inputs = [...diagramWrap.querySelectorAll(".pin input")].filter(i => i.type !== "hidden");
+      return inputs.sort((a,b) => (a.tabIndex || 0) - (b.tabIndex || 0));
+    }
+
+    function focusNextFrom(current){
+      const inputs = orderedPinInputs();
+      const i = inputs.indexOf(current);
+      if (i === -1) return;
+
+      const next = inputs[i + 1];
+      if (!next) {
+        const tag = document.querySelector('input[name="tag"]');
+        if (tag) tag.focus();
+        return;
+      }
+      next.focus({ preventScroll: false });
+      next.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
+    diagramWrap.addEventListener("keydown", (e) => {
+      const inp = e.target;
+      if (!inp.matches(".pin input")) return;
+      if (inp.type === "hidden") return;
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+
+        const raw = inp.value.trim();
+        if (raw === "") return;
+        if (Number.isNaN(Number(raw))) return;
+
+        focusNextFrom(inp);
+      }
+    });
+  </script>
+</body>
+</html>
