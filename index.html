@@ -952,7 +952,8 @@
         {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
-		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}
+		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7},
+		{"type":"input","label":"S","name":"X","left":82.6,"top":42.6,"scale":0.6,"order":8},
       ],	
     };
 
@@ -2120,7 +2121,11 @@
       const form = e.target;
       if (!form.reportValidity()) return;
 
-      const data = Object.fromEntries(new FormData(form).entries());
+      const rawData = Object.fromEntries(new FormData(form).entries());
+
+		const data = Object.fromEntries(
+		  Object.entries(rawData).filter(([key]) => !key.endsWith("_radio"))
+		);
 
       data.qty = parseInt(data.qty, 10);
       if (!Number.isInteger(data.qty) || data.qty < 1) {
