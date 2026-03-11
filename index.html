@@ -534,9 +534,9 @@
       },
 	  
 	  square2round: {
-        fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
+        fields: {end1A: "END1 A", end1B: "END1 B",length: "L",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
         format: ({ end1A, end1B, end2A, end2B, s1, s2, e1, e2, wrap,liner }) =>
-          `<b>${end1A}</b>x<b>${end1B}</b> to <b>${end2A}</b> round  CONN: <b>${e1}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
+          `<b>${end1A}</b>x<b>${end1B}</b> to <b>${end2A}</b> round -<b>${length}</b>  CONN: <b>${e1}</b> INSULATE: <b>${wrap}</b> LINER: <b>${liner}</b>`
       },
 	  canvas: {
         fields: {end1A: "END1 A", end1B: "END1 B",end2A: "END2 A",end2B: "END2 B",s1: "S1",s2: "S2",e1: "E1",e2: "E2",wrap: "insulation", liner:"liner"},
@@ -564,7 +564,7 @@
     // ============================================================
     // SETTINGS
     // ============================================================
-    const EDIT_MODE = false; // set false for production
+    const EDIT_MODE = true; // set false for production
     const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwAM6IQjKmxU1btbYWYHFLI7Yywau3_AGlDMvZigXwbuY53fCXymMCbHHAibEFgeNrFYg/exec";
 
     const shapes = [
@@ -804,7 +804,7 @@
         {"type":"input","label":"A","name":"END2 A","left":50.5,"top":24.9,"scale":0.6,"order":3,"required":true},
         {"type":"label","text":"END 1","left":52.4,"top":93.9,"scale":0.7},
         {"type":"label","text":"END 2","left":52.4,"top":15.6,"scale":0.7},
-		{"type":"input","label":"LENGTH","name":"Length","left":83.6,"top":48.6,"scale":0.6,"order":4,"required":true},
+		{"type":"input","label":"LENGTH","name":"L","left":83.6,"top":48.6,"scale":0.6,"order":4,"required":true},
         {"type":"select","label":"END1","name":"E1","left":19.5,"top":53.8,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
         {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
@@ -2212,5 +2212,4 @@
     });
   </script>
 </body>
-
 </html>
