@@ -375,6 +375,99 @@
 	  text-transform: uppercase;
 	  font-size: 15px;
 	}
+	
+	
+	  /* HISTORY */
+    .history-tools{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .history-tools input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,0.2);
+      font-size:16px;
+    }
+
+    .history-card{
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 14px;
+      padding: 10px;
+      display:grid;
+      gap: 8px;
+      background: rgba(250,250,250,0.6);
+    }
+
+    .history-top{
+      display:flex;
+      gap:10px;
+      align-items:baseline;
+      flex-wrap:wrap;
+      justify-content:space-between;
+    }
+
+    .history-top .fit{
+      font-weight:900;
+    }
+
+    .history-top .metaLine{
+      opacity:0.8;
+      font-size:13px;
+    }
+	
+	.history-group-header{
+	  font-weight: 800;
+	  font-size: 14px;
+	  letter-spacing: 0.04em;
+	  margin: 14px 0 6px;
+	  padding: 6px 8px;
+	  background: #f3f4f6;
+	  border-radius: 8px;
+	  border: 1px solid rgba(0,0,0,0.08);
+	}
+	
+	
+	.history-group{
+	  display: grid;
+	  gap: 8px;
+	}
+
+	.history-group-header{
+	  display:flex;
+	  align-items:center;
+	  justify-content:space-between;
+	  gap:10px;
+	  font-weight: 800;
+	  font-size: 14px;
+	  letter-spacing: 0.04em;
+	  margin: 14px 0 6px;
+	  padding: 8px 10px;
+	  background: #f3f4f6;
+	  border-radius: 8px;
+	  border: 1px solid rgba(0,0,0,0.08);
+	  cursor: pointer;
+	  user-select: none;
+	}
+
+	.history-group-header .chev{
+	  font-size: 12px;
+	  opacity: 0.7;
+	}
+
+	.history-group-body.hidden{
+	  display: none;
+	}
+	
+	.history-sender-header{
+	  font-weight: 900;
+	  font-size: 16px;
+	  margin: 18px 0 8px;
+	  padding: 4px 2px;
+	}
   </style>
 </head>
 
@@ -393,9 +486,10 @@
           <h3>Pending submissions</h3>
 
           <div class="panel-actions">
-            <button type="button" id="sendAllBtn" class="btn primary">Send all to sheet</button>
-            <button type="button" id="clearAllBtn" class="btn danger">Clear</button>
-          </div>
+		  <button type="button" id="sendAllBtn" class="btn primary">Send all to sheet</button>
+		  <button type="button" id="clearAllBtn" class="btn danger">Clear</button>
+		  <button type="button" id="historyBtn" class="btn">History</button>
+		</div>
 
           <p class="muted" id="pendingSummary"></p>
           <div class="pending-list" id="pendingList"></div>
@@ -425,6 +519,7 @@
           <button type="button" id="copyBtn" class="btn">Copy layout</button>
           <button type="button" id="saveBtn" class="btn">Save layout (this PC)</button>
           <button type="button" id="clearBtn" class="btn danger">Clear layout</button>
+		  <button type="button" id="seedTestBtn" class="btn">Seed test items</button>
         </div>
       </div>
 
@@ -456,6 +551,33 @@
         </div>
       </form>
     </section>
+	
+	  <!-- HISTORY -->
+    <section id="history" class="screen hidden">
+      <div class="topbar">
+        <button type="button" id="historyBackBtn" class="btn">← Back</button>
+        <div class="crumb">Submission History</div>
+        <button type="button" id="historyRefreshBtn" class="btn">Refresh</button>
+      </div>
+
+      <div class="panel">
+        <div class="history-tools">
+          <input
+            type="text"
+            id="historySearch"
+            placeholder="Search tag, fitting, notes, project, sender..."
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <p class="muted" id="historySummary">Loading...</p>
+        <div class="pending-list" id="historyList"></div>
+      </div>
+    </section>
+	
+	    
   </div>
 
   <!-- SENDING MODAL -->
@@ -565,22 +687,23 @@
     // SETTINGS
     // ============================================================
     const EDIT_MODE = false; // set false for production
-    const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwAM6IQjKmxU1btbYWYHFLI7Yywau3_AGlDMvZigXwbuY53fCXymMCbHHAibEFgeNrFYg/exec";
-
+	let historyViewMode = false;
+    const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxc_0YD_EOk28VV0u6K-039C4qGMd5QmXLfyNOCPo-1cHSci0u4bq9vN9DCn6vJtCRuDg/exec";
+	const HISTORY_URL = ENDPOINT_URL + "?mode=history";
     const shapes = [
-      { id:"straight",  name:"Straight Duct", img:"Images/CleanStraightDuct1.png", thumb:"Images/StraightDuctIcon.png" },
-	  { id:"elbow",     name:"Elbow",         img:"Images/CleanElbow1.png",        thumb:"Images/ElbowIcon.png" },
-	  { id:"elbow45",   name:"Angle Elbow",       img:"Images/45ElbowClean1.png",      thumb:"Images/45ElbowIcon.png" },
+      { id:"straight", fittingId:"1",  name:"Straight Duct", img:"Images/CleanStraightDuct1.png", thumb:"Images/StraightDuctIcon.png" },
+	  { id:"elbow", fittingId:"57",     name:"Elbow",         img:"Images/CleanElbow1.png",        thumb:"Images/ElbowIcon.png" },
+	  { id:"elbow45", fittingId:"57",   name:"Angle Elbow",       img:"Images/45ElbowClean1.png",      thumb:"Images/45ElbowIcon.png" },
       //{ id:"oldoffset",    name:"Offset",        img:"Images/CleanOffset1.png",       thumb:"Images/OffsetIcon.png" },
 	  { id:"offset",    name:"Offset",        img:"Images/CleanOffset1.png",       thumb:"Images/OffsetIcon.png" },
 	  { id:"transition", name:"Transition",   img:"Images/TransitionIcon.png",     thumb:"Images/TransitionIcon.png" },
 	  { id:"garwood" , name:"Garwood",   	  img:"Images/GarwoodCenterClean.png",     thumb:"Images/GarwoodIcon.png" },
-      { id:"takeoff",   name:"Takeoff",       img:"Images/TakeoffClean1.png",            thumb:"Images/TakeoffIcon.png" },
-	  { id:"square2round",   name:"Square to Round",       img:"Images/SquareToRoundClean1.png",            thumb:"Images/SquareToRoundIcon.png" },
-	  { id:"canvas",    name:"Canvas",        img:"Images/Canvas-Connector.png",   thumb:"Images/Canvas.png" },
-	  { id:"endcap",    name:"End Cap",       img:"Images/EndCap.png",             thumb:"Images/EndCap.png" },
-	  { id:"drainpan",  name:"Drain Pan",     img:"Images/drainpan.png",           thumb:"Images/drainpan.png" },
-	  { id:"flatsheet" , name:"Flat Sheet",   img:"Images/RectangleSheet.png",     thumb:"Images/RectangleSheetIcon.png" },
+      { id:"takeoff", fittingId:"58",   name:"Takeoff",       img:"Images/TakeoffClean1.png",            thumb:"Images/TakeoffIcon.png" },
+	  { id:"square2round", fittingId:"59",   name:"Square to Round",       img:"Images/SquareToRoundClean1.png",            thumb:"Images/SquareToRoundIcon.png" },
+	  { id:"canvas", fittingId:"15",    name:"Canvas",        img:"Images/Canvas-Connector.png",   thumb:"Images/Canvas.png" },
+	  { id:"endcap", fittingId:"12",    name:"End Cap",       img:"Images/EndCap.png",             thumb:"Images/EndCap.png" },
+	  { id:"drainpan", fittingId:"29",  name:"Drain Pan",     img:"Images/drainpan.png",           thumb:"Images/drainpan.png" },
+	  { id:"flatsheet" , fittingId:"45", name:"Flat Sheet",   img:"Images/RectangleSheet.png",     thumb:"Images/RectangleSheetIcon.png" },
 	//{ id:"3tee",      name:"3 Way Tee",     img:"Images/3 Way Tee.png" },
 	// { id:"4way",      name:"4 Way",         img:"Images/4 Way.png" },
 	//{ id:"3split",    name:"3 Way Split",   img:"Images/3 Way Split.png",        thumb:"Images/3 Way Split Icon.png" },
@@ -598,11 +721,18 @@
       transition: {
         title: "Transition alignment",
         fieldName: "variant",        // stored in the form/pending/submission
-        default: "center",
+        default: "center-center",
         options: [
-          { value: "flat left",   label: "Flat Left",     img: "Images/CleanTransition-Left1.png" },
-          { value: "center", label: "Centered", img: "Images/CleanTransition-Centered1.png" },
-          { value: "flat right",  label: "Flat Right",    img: "Images/CleanTransition-Right1.png" },
+          { value: "flat left-flat top", fittingId:"39",   label: "Flat Left-Flat Top",     img: "Images/CleanTransition-Left1.png" },
+		  { value: "center-flat top", fittingId:"33", label: "Center-Flat Top", img: "Images/CleanTransition-Centered1.png" },
+          { value: "flat right-flat top", fittingId:"30",  label: "Flat Right-Flat Top",    img: "Images/CleanTransition-Right1.png" },
+		  { value: "flat left-center", fittingId:"22",   label: "Flat Left-Center",     img: "Images/CleanTransition-Left1.png" },
+		  { value: "center-center", fittingId:"16", label: "Center-Center", img: "Images/CleanTransition-Centered1.png" },
+		  { value: "flat right-center", fittingId:"26",  label: "Flat Right-Center",    img: "Images/CleanTransition-Right1.png" },
+		  { value: "flat left-flat bottom", fittingId:"48",   label: "Flat Left-Flat Bottom",     img: "Images/CleanTransition-Left1.png" },
+		  { value: "center-flat bottom", fittingId:"41", label: "Center-Flat Bottom", img: "Images/CleanTransition-Centered1.png" },
+          { value: "flat right-flat bottom", fittingId:"20",  label: "Flat Right-Flat Bottom",    img: "Images/CleanTransition-Right1.png" },
+          
         ]
       },
 	  
@@ -611,9 +741,9 @@
         fieldName: "variant",        // stored in the form/pending/submission
         default: "center",
         options: [
-          { value: "left",   label: "Left",     img: "Images/GarwoodLeftClean1.png" },
-          { value: "center", label: "Centered", img: "Images/GarwoodCenterClean1.png" },
-          { value: "right",  label: "Right",    img: "Images/GarwoodRightClean1.png" },
+          { value: "left", fittingId:"24",   label: "Left",     img: "Images/GarwoodLeftClean1.png" },
+          { value: "center", fittingId:"31", label: "Centered", img: "Images/GarwoodCenterClean1.png" },
+          { value: "right", fittingId:"25",  label: "Right",    img: "Images/GarwoodRightClean1.png" },
         ]
       },
 	  
@@ -622,10 +752,10 @@
         fieldName: "variant",        // stored in the form/pending/submission
         default: "up",
         options: [
-          { value: "up",   label: "Up",     img: "Images/CleanOffsetUp1.png" },
-          { value: "down", label: "Down", img: "Images/CleanOffsetDown1.png" },
-          { value: "left",  label: "Left",    img: "Images/CleanOffsetLeft1.png" },
-		  { value: "right", label: "Right",    img: "Images/CleanOffsetRight1.png" },
+          { value: "up", fittingId:"17",   label: "Up",     img: "Images/CleanOffsetUp1.png" },
+          { value: "down", fittingId:"17", label: "Down", img: "Images/CleanOffsetDown1.png" },
+          { value: "left", fittingId:"17",  label: "Left",    img: "Images/CleanOffsetLeft1.png" },
+		  { value: "right", fittingId:"17", label: "Right",    img: "Images/CleanOffsetRight1.png" },
 		  //{ value: "Double",  label: "Double",    img: "Images/DoubleOffset.png" },
         ]
       }
@@ -814,7 +944,7 @@
 
       // ===== Transition variant layouts (EDIT THESE POSITIONS FOR EACH IMAGE) =====
       // Your pins will change with the photo, so each variant gets its own layout key.
-      "transition__flat left": [
+      "transition__flat left-flat top": [
 		  {"type":"input","label":"A","name":"END1 A","left":58.2,"top":77.4,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
 		  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 		  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
@@ -825,7 +955,6 @@
 		  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":9}, 
 		  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":5,"required":true},
 		  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-		  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
 		  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		  {"type":"label","text":"END 1","left":51.6,"top":89.8,"scale":0.7},
 		  {"type":"label","text":"END 2","left":48.2,"top":12.9,"scale":0.7},
@@ -833,8 +962,43 @@
 		  {"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
 		  
       ],
-
-      "transition__center": [
+		"transition__flat left-center": [
+				  {"type":"input","label":"A","name":"END1 A","left":58.2,"top":77.4,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+				  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+				  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+				  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+				  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+				  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":8},
+				  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+				  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":9}, 
+				  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":5,"required":true},
+				  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+				  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+				  {"type":"label","text":"END 1","left":51.6,"top":89.8,"scale":0.7},
+				  {"type":"label","text":"END 2","left":48.2,"top":12.9,"scale":0.7},
+				  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+				  {"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
+				  
+			  ],
+			  "transition__flat left-flat bottom": [
+		  {"type":"input","label":"A","name":"END1 A","left":58.2,"top":77.4,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+		  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+		  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":8},
+		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":9}, 
+		  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":5,"required":true},
+		  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+		  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		  {"type":"label","text":"END 1","left":51.6,"top":89.8,"scale":0.7},
+		  {"type":"label","text":"END 2","left":48.2,"top":12.9,"scale":0.7},
+		  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		  {"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
+		  
+      ],
+      "transition__center-flat top": [
 		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
 		{"type":"input","label":"A","name":"END1 A","left":52.7,"top":82.9,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
@@ -846,18 +1010,89 @@
 		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":9},
 		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
 		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":5,"required":true},
-		{"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},
 		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
 		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
 
 ],
+"transition__center-center": [
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+		{"type":"input","label":"A","name":"END1 A","left":52.7,"top":82.9,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":8},
+		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":9},
+		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":5,"required":true},
+		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
+		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
 
-      "transition__flat right": [
+],
+"transition__center-flat bottom": [
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
+		{"type":"input","label":"A","name":"END1 A","left":52.7,"top":82.9,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":8},
+		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":9},
+		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":5,"required":true},
+		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
+		{"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
+
+],
+      "transition__flat right-flat top": [
 			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
-			  {"type": "optionGroup","label": "","name": "X","left":11.1,"top":20.4,"scale": 0.6,"options": ["FLAT TOP","CENTER","FLAT BOTTOM"],"default": "CENTER","required": true,"direction": "vertical"},  
+			  {"type":"input","label":"A","name":"END1 A","left":48.7,"top":84.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":8},
+			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":9},
+			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":5,"required":true},
+			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
+			  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+			  {"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
+
+
+      ],
+	  "transition__flat right-center": [
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6}, 
+			  {"type":"input","label":"A","name":"END1 A","left":48.7,"top":84.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
+			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
+			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":8},
+			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":9},
+			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":5,"required":true},
+			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
+			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
+			  {"type": "optionGroup","label": "","name": "Ga","left":6,"top":49.9,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+			  {"type":"label","text":"Ga","left":4.2,"top":34.8,"scale":0.7}	
+
+
+      ],
+	  "transition__flat right-flat bottom": [
+			  {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+			  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6}, 
 			  {"type":"input","label":"A","name":"END1 A","left":48.7,"top":84.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
 			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
@@ -975,6 +1210,7 @@
     const addFieldBtn = document.getElementById("addFieldBtn");
     const addLabelBtn = document.getElementById("addLabelBtn");
     const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+	const seedTestBtn = document.getElementById("seedTestBtn");
 
     const pinSmallerBtn = document.getElementById("pinSmallerBtn");
     const pinBiggerBtn = document.getElementById("pinBiggerBtn");
@@ -996,10 +1232,21 @@
     const homeStatusEl = document.getElementById("homeStatus");
     const sendAllBtn = document.getElementById("sendAllBtn");
     const clearAllBtn = document.getElementById("clearAllBtn");
+	
+	const historyScreen = document.getElementById("history");
+	const historyBtn = document.getElementById("historyBtn");
+	const historyBackBtn = document.getElementById("historyBackBtn");
+	const historyRefreshBtn = document.getElementById("historyRefreshBtn");
+	const historySearchEl = document.getElementById("historySearch");
+	const historySummaryEl = document.getElementById("historySummary");
+	const historyListEl = document.getElementById("historyList");
+	
 
     let currentShape = null;
     let currentVariant = ""; // for variant shapes
     let selectedEl = null;   // can be .pin or .pin-label
+	
+	let allHistory = [];
 
     // Submitting Popup
     const sendingModal = document.getElementById("sendingModal");
@@ -1078,19 +1325,303 @@
     function uid(){
       return (crypto?.randomUUID?.() || ("id_" + Math.random().toString(16).slice(2) + Date.now()));
     }
+	
+	function setDetailReadOnly(isReadOnly){
+	  const form = document.getElementById("measureForm");
+
+	  // main meta fields
+	  form.querySelectorAll('.meta input, .meta select').forEach(el => {
+		if (el.tagName === "SELECT") {
+		  el.disabled = isReadOnly;
+		} else {
+		  el.readOnly = isReadOnly;
+		}
+	  });
+
+	  // pin controls
+	  form.querySelectorAll('.pin input, .pin select').forEach(el => {
+		if (el.type === "hidden") return;
+
+		if (el.tagName === "SELECT") {
+		  el.disabled = isReadOnly;
+		} else if (el.type === "radio" || el.type === "checkbox") {
+		  el.disabled = isReadOnly;
+		} else {
+		  el.readOnly = isReadOnly;
+		}
+	  });
+
+	  // submit button
+	  const submitBtn = form.querySelector('button[type="submit"]');
+	  if (submitBtn) {
+		submitBtn.style.display = isReadOnly ? "none" : "";
+	  }
+
+	  // variant buttons
+	  [...variantButtons.querySelectorAll(".seg-btn")].forEach(btn => {
+		btn.disabled = isReadOnly;
+		btn.style.pointerEvents = isReadOnly ? "none" : "";
+		btn.style.opacity = isReadOnly ? "0.7" : "";
+	  });
+	}
+
+
+
 
     // ============================================================
     // UI FLOW
     // ============================================================
     function showHome(){
-      detail.classList.add("hidden");
-      home.classList.remove("hidden");
-      currentShape = null;
-      currentVariant = "";
-      statusEl.textContent = "";
-      selectedEl = null;
-      renderPending();
-    }
+	  detail.classList.add("hidden");
+	  historyScreen.classList.add("hidden");
+	  home.classList.remove("hidden");
+
+	  currentShape = null;
+	  currentVariant = "";
+	  historyViewMode = false;
+	  statusEl.textContent = "";
+	  selectedEl = null;
+
+	  setDetailReadOnly(false);
+	  renderPending();
+	}
+	
+	function showHistory(){
+	  home.classList.add("hidden");
+	  detail.classList.add("hidden");
+	  historyScreen.classList.remove("hidden");
+
+	  historyViewMode = false;
+	  setDetailReadOnly(false);
+
+	  window.scrollTo({ top: 0, behavior: "smooth" });
+	  loadHistory();
+	}
+
+	function escapeHtml(str){
+	  return String(str ?? "")
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
+	}
+
+	function formatHistoryDate(value){
+	  if (!value) return "—";
+	  const d = new Date(value);
+	  if (isNaN(d)) return String(value);
+	  return d.toLocaleString();
+	}
+
+	function renderHistory(list){
+		  historyListEl.innerHTML = "";
+
+		  if (!list.length){
+			historySummaryEl.textContent = "No history found.";
+			return;
+		  }
+
+		  historySummaryEl.textContent = `${list.length} item(s)`;
+
+		  let currentSender = null;
+		  let currentGroupKey = null;
+		  let currentGroupBody = null;
+
+		  list.forEach((entry) => {
+			const senderName = entry.senderName || "Unknown Sender";
+			const projectName = entry.project || "No Project";
+			const listName = entry.listname || "Unspecified List";
+			const groupKey = `${projectName} - ${listName}`;
+
+			if (senderName !== currentSender){
+			  currentSender = senderName;
+			  currentGroupKey = null;
+
+			  const senderHeader = document.createElement("div");
+			  senderHeader.className = "history-sender-header";
+			  senderHeader.textContent = senderName;
+
+			  historyListEl.appendChild(senderHeader);
+			}
+
+			if (groupKey !== currentGroupKey){
+			  currentGroupKey = groupKey;
+
+			  const groupWrap = document.createElement("div");
+			  groupWrap.className = "history-group";
+
+			  const header = document.createElement("div");
+			  header.className = "history-group-header";
+
+			  const title = document.createElement("span");
+			  title.textContent = groupKey;
+
+			  const chev = document.createElement("span");
+			  chev.className = "chev";
+			  chev.textContent = "►";
+
+			  header.appendChild(title);
+			  header.appendChild(chev);
+
+			  const groupBody = document.createElement("div");
+			  groupBody.className = "history-group-body hidden";
+
+			  header.addEventListener("click", () => {
+				const isHidden = groupBody.classList.toggle("hidden");
+				chev.textContent = isHidden ? "►" : "▼";
+			  });
+
+			  groupWrap.appendChild(header);
+			  groupWrap.appendChild(groupBody);
+			  historyListEl.appendChild(groupWrap);
+
+			  currentGroupBody = groupBody;
+			}
+
+			const card = document.createElement("div");
+			card.className = "history-card";
+
+			const top = document.createElement("div");
+			top.className = "history-top";
+
+			const fit = document.createElement("div");
+			fit.className = "fit";
+
+			const variantTxt = entry.variant ? ` • ${String(entry.variant).toUpperCase()}` : "";
+			fit.textContent = `#${entry.partnum ?? "?"} ${entry.shapeName || entry.shapeId || "Fitting"}${variantTxt}`;
+
+			const metaLine = document.createElement("div");
+			metaLine.className = "metaLine";
+			metaLine.textContent = formatHistoryDate(entry.submittedAt);
+
+			top.appendChild(fit);
+			top.appendChild(metaLine);
+
+			const metaRow = document.createElement("div");
+			metaRow.className = "kv";
+
+			const chips = [
+			  `TAG: ${entry.tag || "—"}`,
+			  `GA: ${entry.Ga || "—"}`,
+			  `QTY: ${entry.qty || "—"}`,
+			  `PROJECT: ${entry.project || "—"}`,
+			  `LIST: ${entry.listname || "—"}`,
+			  `BY: ${entry.senderName || "—"}`
+			];
+
+			chips.forEach(text => {
+			  const chip = document.createElement("span");
+			  chip.className = "chip";
+			  chip.textContent = text;
+			  metaRow.appendChild(chip);
+			});
+
+			const kv = document.createElement("div");
+			kv.className = "kv";
+
+			const dims = summarizeDims(entry);
+			if (!dims.length){
+			  const chip = document.createElement("span");
+			  chip.className = "chip";
+			  chip.textContent = "(no dimensions)";
+			  kv.appendChild(chip);
+			} else {
+			  dims.forEach(t => {
+				const chip = document.createElement("span");
+				chip.className = "chip";
+				chip.innerHTML = t;
+				kv.appendChild(chip);
+			  });
+			}
+
+			const actions = document.createElement("div");
+			actions.className = "pending-actions";
+
+			const viewBtn = document.createElement("button");
+			viewBtn.type = "button";
+			viewBtn.className = "btn";
+			viewBtn.textContent = "View";
+			viewBtn.addEventListener("click", () => viewHistoryEntry(entry));
+
+			actions.appendChild(viewBtn);
+
+			card.appendChild(top);
+			card.appendChild(metaRow);
+			card.appendChild(kv);
+
+			if (entry.notes){
+			  const notes = document.createElement("div");
+			  notes.className = "kv";
+
+			  const chip = document.createElement("span");
+			  chip.className = "chip";
+			  chip.textContent = `NOTES: ${entry.notes}`;
+			  notes.appendChild(chip);
+
+			  card.appendChild(notes);
+			}
+
+			card.appendChild(actions);
+			currentGroupBody.appendChild(card);
+		  });
+		}
+
+	function applyHistorySearch(){
+	  const q = (historySearchEl.value || "").trim().toLowerCase();
+
+	  if (!q){
+		renderHistory(allHistory);
+		return;
+	  }
+
+	  const filtered = allHistory.filter(entry =>
+		Object.values(entry).some(v => String(v ?? "").toLowerCase().includes(q))
+	  );
+
+	  renderHistory(filtered);
+	  historySummaryEl.textContent = `${filtered.length} match(es) of ${allHistory.length}`;
+	}
+
+	async function loadHistory(){
+	  historySummaryEl.textContent = "Loading...";
+	  historyListEl.innerHTML = "";
+
+	  try {
+		const res = await fetch(HISTORY_URL, { method: "GET" });
+		if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+		const data = await res.json();
+		allHistory = Array.isArray(data) ? data : [];
+
+		allHistory.sort((a,b)=>{
+
+	  const senderA = (a.senderName || "").toLowerCase();
+	  const senderB = (b.senderName || "").toLowerCase();
+
+	  if (senderA < senderB) return -1;
+	  if (senderA > senderB) return 1;
+
+	  const groupA = `${a.project || ""}-${a.listname || ""}`.toLowerCase();
+	  const groupB = `${b.project || ""}-${b.listname || ""}`.toLowerCase();
+
+	  if (groupA < groupB) return -1;
+	  if (groupA > groupB) return 1;
+
+	  const partA = Number(a.partnum || 0);
+	  const partB = Number(b.partnum || 0);
+
+	  return partA - partB;
+	});
+
+		applyHistorySearch();
+	  } catch (err){
+		console.error(err);
+		historySummaryEl.textContent = "Failed to load history.";
+		historyListEl.innerHTML = "";
+	  }
+	}
+	
 
     function getVariantConfig(shapeId){
       return VARIANT_CONFIG[shapeId] || null;
@@ -1226,66 +1757,64 @@
     }
 
     function showDetail(shape, variantOverride = ""){
-      currentShape = shape;
-      shapeName.textContent = shape.name;
-      statusEl.textContent = "";
-      selectedEl = null;
+	  home.classList.add("hidden");
+	  historyScreen.classList.add("hidden");
+	  detail.classList.remove("hidden");
 
-      if (EDIT_MODE){
-        editTools.style.display = "flex";
-        editHint.style.display = "block";
-      } else {
-        editTools.style.display = "none";
-        editHint.style.display = "none";
-      }
+	  historyViewMode = false;
+	  setDetailReadOnly(false);
 
-      const cfg = getVariantConfig(shape.id);
+	  currentShape = shape;
+	  shapeName.textContent = shape.name;
+	  statusEl.textContent = "";
+	  selectedEl = null;
 
-      if (cfg){
-        variantPanel.classList.remove("hidden");
-        variantTitle.textContent = cfg.title || "Options";
+	  if (EDIT_MODE){
+		editTools.style.display = "flex";
+		editHint.style.display = "block";
+	  } else {
+		editTools.style.display = "none";
+		editHint.style.display = "none";
+	  }
 
-        // pick variant: override -> last used -> default
-        const lastUsed = localStorage.getItem(lastVariantKey(shape.id)) || "";
-        const desired = (variantOverride || "").trim() || lastUsed || (cfg.default || "");
-        buildVariantButtons(cfg, desired);
+	  const cfg = getVariantConfig(shape.id);
 
-        // set base (will set image + layout)
-        currentVariant = desired;
-        variantValueEl.name = cfg.fieldName || "variant";
-        variantValueEl.value = desired;
+	  if (cfg){
+		variantPanel.classList.remove("hidden");
+		variantTitle.textContent = cfg.title || "Options";
 
-        // initialize image + layout
-        const opt = variantOption(shape.id, desired);
-        detailImg.src = opt?.img || shape.img;
+		const lastUsed = localStorage.getItem(lastVariantKey(shape.id)) || "";
+		const desired = (variantOverride || "").trim() || lastUsed || (cfg.default || "");
+		buildVariantButtons(cfg, desired);
 
-        const lk = layoutKeyFor(shape.id, desired);
-        const saved = loadSavedLayoutByKey(lk);
-        const fallback = defaultLayouts[lk] || [];
-        renderLayout(saved || fallback);
-      } else {
-        variantPanel.classList.add("hidden");
-        variantButtons.innerHTML = "";
-        variantValueEl.value = "";
-        variantValueEl.name = "variant";
-        currentVariant = "";
+		currentVariant = desired;
+		variantValueEl.name = cfg.fieldName || "variant";
+		variantValueEl.value = desired;
 
-        detailImg.src = shape.img;
+		const opt = variantOption(shape.id, desired);
+		detailImg.src = opt?.img || shape.img;
 
-        const lk = layoutKeyFor(shape.id, "");
-        const saved = loadSavedLayoutByKey(lk);
-        const fallback = defaultLayouts[lk] || [];
-        renderLayout(saved || fallback);
-      }
+		const lk = layoutKeyFor(shape.id, desired);
+		const saved = loadSavedLayoutByKey(lk);
+		const fallback = defaultLayouts[lk] || [];
+		renderLayout(saved || fallback);
+	  } else {
+		variantPanel.classList.add("hidden");
+		variantButtons.innerHTML = "";
+		variantValueEl.value = "";
+		variantValueEl.name = "variant";
+		currentVariant = "";
 
-      home.classList.add("hidden");
-      detail.classList.remove("hidden");
-    
-		  // ✅ Scroll to top
-		  window.scrollTo({ top: 0, behavior: "smooth" });
-		
-	  
-    }
+		detailImg.src = shape.img;
+
+		const lk = layoutKeyFor(shape.id, "");
+		const saved = loadSavedLayoutByKey(lk);
+		const fallback = defaultLayouts[lk] || [];
+		renderLayout(saved || fallback);
+	  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
     // Build home tiles
     shapes.forEach(shape => {
@@ -1306,7 +1835,15 @@
       grid.appendChild(tile);
     });
 
-    backBtn.addEventListener("click", showHome);
+    backBtn.addEventListener("click", () => {
+	  if (historyViewMode){
+		historyViewMode = false;
+		setDetailReadOnly(false);
+		showHistory();
+	  } else {
+		showHome();
+	  }
+	});
 
     // ============================================================
     // SELECTION + SCALE HELPERS
@@ -1826,6 +2363,104 @@
       const line = cfg.format(values).replace(/\s+/g, " ").trim();
       return line ? [line] : [];
     }
+		function getAllShapeVariantCombos(){
+		  const combos = [];
+
+		  shapes.forEach(shape => {
+			const cfg = getVariantConfig(shape.id);
+
+			if (cfg && Array.isArray(cfg.options) && cfg.options.length){
+			  cfg.options.forEach(opt => {
+				combos.push({
+				  shape,
+				  variant: opt.value
+				});
+			  });
+			} else {
+			  combos.push({
+				shape,
+				variant: ""
+			  });
+			}
+		  });
+
+		  return combos;
+		}
+
+		function getLayoutForCombo(shapeId, variant){
+		  const lk = layoutKeyFor(shapeId, variant);
+		  return loadSavedLayoutByKey(lk) || defaultLayouts[lk] || [];
+		}
+
+		function makeTestValueForItem(item){
+		  if (item.type === "input"){
+			if (item.default !== undefined && item.default !== "") return String(item.default);
+
+			const n = String(item.name || "").toUpperCase();
+
+			if (n.includes("A")) return "12";
+			if (n.includes("B")) return "10";
+			if (n === "L" || n.includes("LENGTH")) return "24";
+			if (n === "OFF" || n.includes("OFFSET")) return "6";
+			if (n === "S1") return "4";
+			if (n === "S2") return "4";
+			if (n === "X") return "45";
+
+			return "1";
+		  }
+
+		  if (item.type === "select"){
+			if (item.default !== undefined && item.default !== "") return String(item.default);
+			return item.options?.[0] ?? "";
+		  }
+
+		  if (item.type === "toggle"){
+			const onVal = item.onValue ?? "YES";
+			const offVal = item.offValue ?? "NO";
+			return item.default === true ? onVal : offVal;
+		  }
+
+		  if (item.type === "optionGroup"){
+			if (item.default !== undefined && item.default !== "") return String(item.default);
+			return item.options?.[0] ?? "";
+		  }
+
+		  return "";
+		}
+
+		function buildTestEntry(shape, variant){
+		  const layout = getLayoutForCombo(shape.id, variant);
+		  const entry = {
+			pendingId: uid(),
+			shapeId: shape.id,
+			shapeName: shape.name,
+			fittingId: getFittingIdFor(shape, variant),
+			qty: 1,
+			tag: "AHU-3".toUpperCase(),
+			notes: "TEST ITEM",
+			submittedAt: new Date().toLocaleString()
+		  };
+
+		  if (variant){
+			entry.variant = variant;
+		  }
+
+		  layout.forEach(item => {
+			if (!item.name) return;
+			if (item.type === "label") return;
+			entry[item.name] = makeTestValueForItem(item);
+		  });
+
+		  return entry;
+		}
+
+		function seedTestPendingItems(){
+		  const combos = getAllShapeVariantCombos();
+		  const seeded = combos.map(({ shape, variant }) => buildTestEntry(shape, variant));
+		  savePending(seeded);
+		  renderPending();
+		  homeStatusEl.textContent = `Seeded ${seeded.length} test item(s).`;
+		}
 
     function renderPending(){
       const pending = loadPending();
@@ -2006,6 +2641,37 @@
 		});
 	  });
 	}
+	
+	function viewHistoryEntry(entry){
+	  const shape = shapes.find(s => s.id === entry.shapeId) || {
+		id: entry.shapeId,
+		name: entry.shapeName || entry.shapeId || "Fitting",
+		img: ""
+	  };
+
+	  showDetail(shape, entry.variant || "");
+
+	  requestAnimationFrame(() => {
+		const form = document.getElementById("measureForm");
+
+		const cfg = getVariantConfig(entry.shapeId);
+		if (cfg && entry.variant){
+		  setVariant(entry.variant);
+		}
+
+		requestAnimationFrame(() => {
+		  form.tag.value = entry.tag || "";
+		  form.qty.value = entry.qty || "";
+		  form.notes.value = entry.notes || "";
+
+		  populatePinsFromEntry(entry);
+
+		  historyViewMode = true;
+		  setDetailReadOnly(true);
+		  statusEl.textContent = "Viewing submission history.";
+		});
+	  });
+	}
 
     // ============================================================
     // SEND ALL TO SHEET
@@ -2106,6 +2772,54 @@
       clearPending();
       homeStatusEl.textContent = "Cleared.";
     });
+	
+	historyBtn.addEventListener("click", () => {
+	  showHistory();
+	});
+
+	historyBackBtn.addEventListener("click", () => {
+	  showHome();
+	});
+
+	historyRefreshBtn.addEventListener("click", () => {
+	  loadHistory();
+	});
+	
+
+	historySearchEl.addEventListener("input", () => {
+	  applyHistorySearch();
+	});
+	seedTestBtn.addEventListener("click", () => {
+	  if (!EDIT_MODE) return;
+	  if (!confirm("Replace pending list with one test item for every shape and variant?")) return;
+	  seedTestPendingItems();
+	  showHome();
+	});
+
+	function getCurrentFittingId(){
+		  if (!currentShape) return "";
+
+		  const cfg = getVariantConfig(currentShape.id);
+		  if (cfg){
+			const opt = variantOption(currentShape.id, currentVariant || cfg.default || "");
+			return opt?.fittingId || "";
+		  }
+
+		  return currentShape.fittingId || "";
+		}
+	function getFittingIdFor(shape, variant = ""){
+	  const cfg = getVariantConfig(shape.id);
+
+	  if (cfg){
+		const opt = (cfg.options || []).find(o => o.value === variant);
+		return opt?.fittingId || "";
+	  }
+
+	  return shape.fittingId || "";
+	}
+
+
+
 
     // ============================================================
     // SUBMIT: ADD TO PENDING (or update if editing)
@@ -2135,6 +2849,7 @@
 
       data.shapeId = currentShape.id;
       data.shapeName = currentShape.name;
+	  data.fittingId = getCurrentFittingId();
       data.submittedAt = new Date().toLocaleString();
 
       // Ensure variant is stored only when used (cleaner submissions)
