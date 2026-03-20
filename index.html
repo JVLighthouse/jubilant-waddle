@@ -346,6 +346,7 @@
       border-radius: 14px;
       border: 1px solid rgba(0,0,0,0.2);
       background: white;
+	  word-wrap: break-word;
       font-weight: 900;
       cursor: pointer;
       user-select: none;
@@ -489,6 +490,7 @@
 		  <button type="button" id="sendAllBtn" class="btn primary">Send all to sheet</button>
 		  <button type="button" id="clearAllBtn" class="btn danger">Clear</button>
 		  <button type="button" id="historyBtn" class="btn">History</button>
+		  <button type="button" id="exportXmlBtn" class="btn">Export XML</button>
 		</div>
 
           <p class="muted" id="pendingSummary"></p>
@@ -723,15 +725,15 @@
         fieldName: "variant",        // stored in the form/pending/submission
         default: "center-center",
         options: [
-          { value: "flat left-flat top", fittingId:"39",   label: "Flat Left-Flat Top",     img: "Images/CleanTransition-Left1.png" },
-		  { value: "center-flat top", fittingId:"33", label: "Center-Flat Top", img: "Images/CleanTransition-Centered1.png" },
-          { value: "flat right-flat top", fittingId:"30",  label: "Flat Right-Flat Top",    img: "Images/CleanTransition-Right1.png" },
-		  { value: "flat left-center", fittingId:"22",   label: "Flat Left-Center",     img: "Images/CleanTransition-Left1.png" },
-		  { value: "center-center", fittingId:"16", label: "Center-Center", img: "Images/CleanTransition-Centered1.png" },
-		  { value: "flat right-center", fittingId:"26",  label: "Flat Right-Center",    img: "Images/CleanTransition-Right1.png" },
-		  { value: "flat left-flat bottom", fittingId:"48",   label: "Flat Left-Flat Bottom",     img: "Images/CleanTransition-Left1.png" },
-		  { value: "center-flat bottom", fittingId:"41", label: "Center-Flat Bottom", img: "Images/CleanTransition-Centered1.png" },
-          { value: "flat right-flat bottom", fittingId:"20",  label: "Flat Right-Flat Bottom",    img: "Images/CleanTransition-Right1.png" },
+          { value: "flat left-flat top", fittingId:"39",   label: "Flat Left-Flat Top",     img: "Images/FLFT.png" },
+		  { value: "center-flat top", fittingId:"33", label: "Center-Flat Top", img: "Images/CFT.png" },
+          { value: "flat right-flat top", fittingId:"30",  label: "Flat Right-Flat Top",    img: "Images/FRFT.png" },
+		  { value: "flat left-center", fittingId:"22",   label: "Flat Left-Center",     img: "Images/FLC.png" },
+		  { value: "center-center", fittingId:"16", label: "Center-Center", img: "Images/CC.png" },
+		  { value: "flat right-center", fittingId:"26",  label: "Flat Right-Center",    img: "Images/FRC.png" },
+		  { value: "flat left-flat bottom", fittingId:"48",   label: "Flat Left-Flat Bottom",     img: "Images/FLFB.png" },
+		  { value: "center-flat bottom", fittingId:"41", label: "Center-Flat Bottom", img: "Images/CFB.png" },
+          { value: "flat right-flat bottom", fittingId:"20",  label: "Flat Right-Flat Bottom",    img: "Images/FRFB.png" },
           
         ]
       },
@@ -758,8 +760,23 @@
 		  { value: "right", fittingId:"17", label: "Right",    img: "Images/CleanOffsetRight1.png" },
 		  //{ value: "Double",  label: "Double",    img: "Images/DoubleOffset.png" },
         ]
+      },
+	  
+	  elbow: {
+        title: "Elbow alignment",
+        fieldName: "variant",        // stored in the form/pending/submission
+        default: "SqThroatRadHeel",
+        options: [
+          { value: "sqthroatradheel", fittingId:"57",   label: "Square Throat-Radius Heel",     img: "Images/CleanSquareThroatRoundHeel1.png" },
+          { value: "sqthroatsqheel", fittingId:"57", label: "Square Throat-Square Heel", img: "Images/CleanSquareThroatSquareHeel1.png" },
+          { value: "sqthroatmitreheel", fittingId:"57",  label: "Square Throat-Mitered Heel",    img: "Images/CleanSquareThroatMiteredHeel1.png" },
+        ]
       }
+	  
+	  
     };
+	
+	
 
     // Layouts by key. Non-variant shapes use their id as the key.
     // Variant shapes use: `${shapeId}__${variantValue}`
@@ -778,20 +795,52 @@
 		{"type":"label","text":"Ga","left":8.7,"top":16.5,"scale":0.7}	
       ],
 	  
-	  elbow: [
-        {"type":"input","label":"A","name":"END1 A","left":35.5,"top":78.5,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
-        {"type":"input","label":"B","name":"END1 B","left":14.8,"top":70.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
-        {"type":"input","label":"A","name":"END2 A","left":73,"top":36.5,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
-        {"type":"input","label":"T1","name":"S1","left":57.1,"top":69.1,"scale":0.6,"order":4},
-        {"type":"input","label":"T2","name":"S2","left":65.7,"top":56.9,"scale":0.6,"order":5},
+	  elbow__sqthroatmitreheel: [
+        {"type":"input","label":"A","name":"END1 A","left":39.5,"top":81.7,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":14.1,"top":76.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+        {"type":"input","label":"A","name":"END2 A","left":88.4,"top":41.5,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"T1","name":"S1","left":69.9,"top":76.1,"scale":0.6,"order":4},
+        {"type":"input","label":"T2","name":"S2","left":83,"top":65.7,"scale":0.6,"order":5},
         {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
-        {"type":"label","text":"END 2","left":74.4,"top":22.2,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":31.7,"top":50,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":31.7,"top":27.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-        {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"label","text":"END 2","left":88.8,"top":24.2,"scale":0.7},
+        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":11.4,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
-		{"type": "optionGroup","label": "","name": "Ga","left":10.7,"top":40.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
-		{"type":"label","text":"Ga","left":8.7,"top":16.5,"scale":0.7}
+		{"type": "optionGroup","label": "","name": "Ga","left":6.3,"top":36.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"label","text":"Ga","left":6.3,"top":22.1,"scale":0.7}
+      ],
+	  
+	  elbow__sqthroatsqheel: [
+        {"type":"input","label":"A","name":"END1 A","left":39.5,"top":81.7,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":14.1,"top":76.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+        {"type":"input","label":"A","name":"END2 A","left":88.4,"top":41.5,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"T1","name":"S1","left":69.9,"top":76.1,"scale":0.6,"order":4},
+        {"type":"input","label":"T2","name":"S2","left":83,"top":65.7,"scale":0.6,"order":5},
+        {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
+        {"type":"label","text":"END 2","left":88.8,"top":24.2,"scale":0.7},
+        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":11.4,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type": "optionGroup","label": "","name": "Ga","left":6.3,"top":36.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"label","text":"Ga","left":6.3,"top":22.1,"scale":0.7}
+      ],
+	  
+	  elbow__sqthroatradheel: [
+        {"type":"input","label":"A","name":"END1 A","left":39.5,"top":81.7,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":14.1,"top":76.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+        {"type":"input","label":"A","name":"END2 A","left":88.4,"top":41.5,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"T1","name":"S1","left":69.9,"top":76.1,"scale":0.6,"order":4},
+        {"type":"input","label":"T2","name":"S2","left":83,"top":65.7,"scale":0.6,"order":5},
+        {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
+        {"type":"label","text":"END 2","left":88.8,"top":24.2,"scale":0.7},
+        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"toggle","label":"Liner","name":"liner","left":11.4,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
+        {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
+		{"type": "optionGroup","label": "","name": "Ga","left":6.3,"top":36.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"label","text":"Ga","left":6.3,"top":22.1,"scale":0.7}
       ],
 	  
 	  elbow45: [
@@ -919,6 +968,7 @@
         {"type":"input","label":"B","name":"END1 B","left":7.5,"top":57.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
         {"type":"select","label":"END1","name":"E1","left":55,"top":17.7,"scale":0.6,"order":3,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":30.6,"scale": 0.6,"order": 15,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
+		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}
       ],
 
@@ -2818,7 +2868,667 @@
 	  return shape.fittingId || "";
 	}
 
+	// ============================================================
+	// XML EXPORT
+	// ============================================================
+	const exportXmlBtn = document.getElementById("exportXmlBtn");
 
+	function escapeXml(value = "") {
+	  return String(value ?? "")
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&apos;");
+	}
+
+	function xmlAttr(name, value) {
+	  return `${name}="${escapeXml(value)}"`;
+	}
+
+	function dimS(v) {
+	  const s = String(v ?? "").trim();
+	  return s ? `${s}S` : "";
+	}
+
+	function dimD(v) {
+	  const s = String(v ?? "").trim();
+	  return s ? `${s}D` : "";
+	}
+
+	function dimPlain(v) {
+	  return String(v ?? "").trim();
+	}
+
+	function yesNoToYN(v) {
+	  return String(v ?? "").trim().toUpperCase() === "YES" ? "Y" : "N";
+	}
+
+	function materialGauge(entry) {
+	  return String(entry.Ga || "26").trim() || "26";
+	}
+
+	function connectorValue(v, fallback = "SD") {
+	  const s = String(v ?? "").trim();
+	  return s || fallback;
+	}
+
+	function fittingHeader({
+	  index,
+	  name,
+	  library,
+	  project,
+	  material,
+	  comment,
+	  quantity,
+	  noOfEnds
+	}) {
+	  return [
+		`<Fitting`,
+		` ${xmlAttr("Index", index)}`,
+		` ${xmlAttr("Name", name)}`,
+		` ${xmlAttr("FittingLibrary", library)}`,
+		` ${xmlAttr("Project", project)}`,
+		` ${xmlAttr("ItemID", "")}`,
+		` ${xmlAttr("Metric", "N")}`,
+		` ${xmlAttr("Material", material)}`,
+		` ${xmlAttr("Lined", "N")}`,
+		` ${xmlAttr("LinerMaterial", "")}`,
+		` ${xmlAttr("Wrapped", "N")}`,
+		` ${xmlAttr("WrapperMaterial", "")}`,
+		` ${xmlAttr("DoubleWall", "N")}`,
+		` ${xmlAttr("DoubleWallMaterial", "")}`,
+		` ${xmlAttr("DoubleWallThickness", "0")}`,
+		` ${xmlAttr("DoubleWallExtensionSet", "")}`,
+		` ${xmlAttr("Instruction", "")}`,
+		` ${xmlAttr("Comment", comment)}`,
+		` ${xmlAttr("Quantity", quantity)}`,
+		` ${xmlAttr("PressureClass", "")}`,
+		` ${xmlAttr("NoOfEnds", noOfEnds)}>`,
+	  ].join("");
+	}
+
+	function connectorsXml(entry, opts = {}) {
+	  const e1 = connectorValue(opts.end1 ?? entry.E1, "SD");
+	  const e2 = connectorValue(opts.end2 ?? entry.E2, "SD");
+
+	  const lines = [
+		`    <Connectors>`,
+		`      <ConnEntry FemaleSeam="PITT" />`,
+		`      <ConnEntry MaleSeam="PITT" />`,
+	  ];
+
+	  if (opts.includeEnd1 !== false) {
+		lines.push(`      <ConnEntry End1="${escapeXml(e1)}" />`);
+		lines.push(`      <ConnEntry End1DimB="${escapeXml(e1)}" />`);
+	  }
+
+	  if (opts.includeEnd2 !== false) {
+		lines.push(`      <ConnEntry End2="${escapeXml(e2)}" />`);
+		lines.push(`      <ConnEntry End2DimB="${escapeXml(e2)}" />`);
+	  }
+
+	  if (opts.extra && Array.isArray(opts.extra)) {
+		opts.extra.forEach(x => lines.push(x));
+	  }
+
+	  lines.push(`    </Connectors>`);
+	  lines.push(`    <Reinforcements />`);
+	  lines.push(`  </Fitting>`);
+
+	  return lines.join("\n");
+	}
+
+	function offsetCodeFromVariant(variant, xVal) {
+	  const x = String(xVal ?? "").trim();
+	  const amt = x ? `${x}` : "";
+
+	  switch (String(variant || "").toLowerCase()) {
+		case "up":
+		  return { d1: "C", d2: amt ? `T+${amt}` : "T" };
+		case "down":
+		  return { d1: "C", d2: amt ? `T-${amt}` : "B" };
+		case "left":
+		  return { d1: amt ? `L-${amt}` : "L", d2: "C" };
+		case "right":
+		  return { d1: amt ? `L+${amt}` : "R", d2: "C" };
+		default:
+		  return { d1: "C", d2: amt ? `T+${amt}` : "T" };
+	  }
+	}
+
+	function transitionOffsetsFromVariant(variant) {
+	  switch (String(variant || "").toLowerCase()) {
+		case "flat left-flat top": return { d1: "L", d2: "T" };
+		case "center-flat top": return { d1: "C", d2: "T" };
+		case "flat right-flat top": return { d1: "R", d2: "T" };
+		case "flat left-center": return { d1: "L", d2: "C" };
+		case "center-center": return { d1: "C", d2: "C" };
+		case "flat right-center": return { d1: "R", d2: "C" };
+		case "flat left-flat bottom": return { d1: "L", d2: "B" };
+		case "center-flat bottom": return { d1: "C", d2: "B" };
+		case "flat right-flat bottom": return { d1: "R", d2: "B" };
+		default: return { d1: "C", d2: "C" };
+	  }
+	}
+
+	function buildStraightXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Rectangular Straight Duct",
+		library: "RectangularFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 2
+	  });
+
+	  return [
+		header,
+		`    <FittingEntry Pieces="E" />`,
+		`    <FittingEntry E1D1="${escapeXml(dimS(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimD(entry["END1 B"]))}" />`,
+		`    <FittingEntry Length="${escapeXml(dimPlain(entry["L"]))}" />`,
+		`    <FittingEntry DuctType="C" />`,
+		`    <FittingEntry AutoRotate="N" />`,
+		`    <FittingEntry JointType="S" />`,
+		`    <FittingEntry TotalRunLength="" />`,
+		`    <FittingEntry TrueShortLength="" />`,
+		`    <FittingEntry NumberOfJoints="1" />`,
+		`    <FittingEntry ShortLength="0" />`,
+		`    <FittingEntry CoilLength="${escapeXml(dimPlain(entry["L"]))}" />`,
+		`    <FittingEntry SwapSeams="N" />`,
+		`    <FittingEntry EdgeCut="N" />`,
+		`    <FittingEntry TruePieces="E" />`,
+		`    <FittingEntry LinerPieces="" />`,
+		`    <FittingEntry WrapperPieces="" />`,
+		`    <FittingEntry PinSpacing="" />`,
+		`    <FittingEntry DoubleWallLength="" />`,
+		`    <FittingEntry Status="" />`,
+		`    <FittingEntry Status.1="" />`,
+		`    <FittingEntry Status.2="" />`,
+		`    <FittingEntry Status.3="" />`,
+		`    <FittingEntry Status.4="" />`,
+		`    <FittingEntry Status_dw="" />`,
+		`    <FittingEntry Status.1_dw="" />`,
+		`    <FittingEntry Status.2_dw="" />`,
+		`    <FittingEntry Status.3_dw="" />`,
+		`    <FittingEntry Status.4_dw="" />`,
+		`    <FittingEntry CoilSeamPlacement="" />`,
+		`    <FittingEntry CoilSeam1="" />`,
+		`    <FittingEntry CoilSeam2="" />`,
+		`    <FittingEntry Beaded="" />`,
+		`    <FittingEntry Velocity="" />`,
+		`    <FittingEntry DieSet="" />`,
+		`    <FittingEntry HolePunchDimA="" />`,
+		`    <FittingEntry HolePunchDimB="" />`,
+		`    <FittingEntry WrapperBreak="" />`,
+		`    <FittingEntry Lock="" />`,
+		`    <FittingEntry EngelJobID="" />`,
+		`    <FittingEntry GA="" />`,
+		`    <FittingEntry WD="" />`,
+		`    <FittingEntry Connector="" />`,
+		`    <FittingEntry Insulation="" />`,
+		`    <FittingEntry PinType="" />`,
+		`    <FittingEntry Seal="" />`,
+		`    <FittingEntry Glue="" />`,
+		`    <FittingEntry Brake="" />`,
+		`    <FittingEntry Bead="" />`,
+		`    <FittingEntry DieType="" />`,
+		`    <FittingEntry HoleDiameter="" />`,
+		`    <FittingEntry Leg1Holes="" />`,
+		`    <FittingEntry Leg2Holes="" />`,
+		connectorsXml(entry)
+	  ].join("\n");
+	}
+
+	function buildElbowXml(entry, index, project, spanValue) {
+	  const header = fittingHeader({
+		index,
+		name: "Rectangular Elbow",
+		library: "RectangularFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 2
+	  });
+
+	  const radius = spanValue === "45" ? "" : dimPlain(entry["END1 A"]);
+
+	  return [
+		header,
+		`    <FittingEntry FittingType="S" />`,
+		`    <FittingEntry E1D1="${escapeXml(dimS(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimD(entry["END1 B"]))}" />`,
+		`    <FittingEntry E2D1="${escapeXml(dimS(entry["END2 A"] || entry["END1 A"]))}" />`,
+		`    <FittingEntry E2D2="${escapeXml(dimD(entry["END2 B"] || entry["END1 B"]))}" />`,
+		`    <FittingEntry Radius="${escapeXml(radius)}" />`,
+		`    <FittingEntry E1Str="${escapeXml(dimPlain(entry["S1"]))}" />`,
+		`    <FittingEntry E2Str="${escapeXml(dimPlain(entry["S2"]))}" />`,
+		`    <FittingEntry End2Slope="0" />`,
+		`    <FittingEntry D2Offset="" />`,
+		`    <FittingEntry Span="${escapeXml(spanValue)}" />`,
+		`    <FittingEntry ThroatChamferDrop="" />`,
+		`    <FittingEntry ThroatChamferRun="" />`,
+		`    <FittingEntry SecondChamfer="" />`,
+		`    <FittingEntry RadiusSegments="" />`,
+		`    <FittingEntry VaneRunner="" />`,
+		`    <FittingEntry VaneType="" />`,
+		`    <FittingEntry NumberOfVanes="" />`,
+		`    <FittingEntry NumberOfVaneHoles="" />`,
+		`    <FittingEntry NumberOfVaneTabs="" />`,
+		`    <FittingEntry PassageWidth="" />`,
+		`    <FittingEntry CenterBendNotch="" />`,
+		`    <FittingEntry VaneHoleDiameter="" />`,
+		`    <FittingEntry VaneRadius1="" />`,
+		`    <FittingEntry VaneRadius2="" />`,
+		`    <FittingEntry VaneRadius3="" />`,
+		connectorsXml(entry)
+	  ].join("\n");
+	}
+
+	function buildOffsetXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Rectangular Offset",
+		library: "RectangularFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 2
+	  });
+
+	  const offs = offsetCodeFromVariant(entry.variant, entry["X"]);
+
+	  return [
+		header,
+		`    <FittingEntry FittingType="S" />`,
+		`    <FittingEntry E1D1="${escapeXml(dimS(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimD(entry["END1 B"]))}" />`,
+		`    <FittingEntry E2D1="${escapeXml(dimS(entry["END2 A"] || entry["END1 A"]))}" />`,
+		`    <FittingEntry E2D2="${escapeXml(dimD(entry["END2 B"] || entry["END1 B"]))}" />`,
+		`    <FittingEntry Length="${escapeXml(dimPlain(entry["L"]))}" />`,
+		`    <FittingEntry E1Str="${escapeXml(dimPlain(entry["S1"]))}" />`,
+		`    <FittingEntry E2Str="${escapeXml(dimPlain(entry["S2"]))}" />`,
+		`    <FittingEntry D1Offset="${escapeXml(offs.d1)}" />`,
+		`    <FittingEntry D2Offset="${escapeXml(offs.d2)}" />`,
+		`    <FittingEntry HeelStraight1="" />`,
+		`    <FittingEntry HeelStraight2="" />`,
+		`    <FittingEntry Radius="" />`,
+		`    <FittingEntry Pieces="" />`,
+		`    <FittingEntry TopRadius1="" />`,
+		`    <FittingEntry TopRadius2="" />`,
+		`    <FittingEntry BottomRadius1="" />`,
+		`    <FittingEntry BottomRadius2="" />`,
+		`    <FittingEntry DividerType="" />`,
+		`    <FittingEntry DividerOffset="" />`,
+		connectorsXml(entry)
+	  ].join("\n");
+	}
+
+	function buildTransitionXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Rectangular Transition",
+		library: "RectangularFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 2
+	  });
+
+	  const offs = transitionOffsetsFromVariant(entry.variant);
+
+	  return [
+		header,
+		`    <FittingEntry Pieces="4" />`,
+		`    <FittingEntry LinerPieces="" />`,
+		`    <FittingEntry WrapperPieces="" />`,
+		`    <FittingEntry E1D1="${escapeXml(dimS(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimD(entry["END1 B"]))}" />`,
+		`    <FittingEntry E2D1="${escapeXml(dimS(entry["END2 A"]))}" />`,
+		`    <FittingEntry E2D2="${escapeXml(dimD(entry["END2 B"]))}" />`,
+		`    <FittingEntry Length="${escapeXml(dimPlain(entry["L"]))}" />`,
+		`    <FittingEntry E1Str="${escapeXml(dimPlain(entry["S1"]))}" />`,
+		`    <FittingEntry E2Str="${escapeXml(dimPlain(entry["S2"]))}" />`,
+		`    <FittingEntry D1Offset="${escapeXml(offs.d1)}" />`,
+		`    <FittingEntry D2Offset="${escapeXml(offs.d2)}" />`,
+		`    <FittingEntry Variation="" />`,
+		`    <FittingEntry E1AngleRise="" />`,
+		`    <FittingEntry E1STDim1="" />`,
+		`    <FittingEntry E1STDim2="" />`,
+		`    <FittingEntry E2AngleRise="" />`,
+		`    <FittingEntry E2STDim1="" />`,
+		`    <FittingEntry E2STDim2="" />`,
+		`    <FittingEntry Sections="1" />`,
+		`    <FittingEntry SectionEnd1="" />`,
+		`    <FittingEntry SectionEnd2="" />`,
+		`    <FittingEntry DividerType="" />`,
+		`    <FittingEntry DividerOffset="" />`,
+		connectorsXml(entry)
+	  ].join("\n");
+	}
+
+	function buildTakeoffXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Rectangular Branch Take Off",
+		library: "RectangularFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 2
+	  });
+
+	  return [
+		header,
+		`    <FittingEntry E1D1="${escapeXml(dimPlain(entry["END1 A"]))}" />`,
+		`    <FittingEntry E2D1="${escapeXml(dimS(entry["END2 A"]))}" />`,
+		`    <FittingEntry E2D2="${escapeXml(dimD(entry["END2 B"]))}" />`,
+		`    <FittingEntry Length="${escapeXml(dimPlain(entry["L"]))}" />`,
+		`    <FittingEntry TakeOffLength="${escapeXml(dimPlain(entry["X"]))}" />`,
+		`    <FittingEntry Pieces="2" />`,
+		`    <FittingEntry TakeOffType="E" />`,
+		connectorsXml(entry)
+	  ].join("\n");
+	}
+
+	function buildSquareToRoundXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Square To Round Transition",
+		library: "RoundFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 2
+	  });
+
+	  return [
+		header,
+		`    <FittingEntry Pieces="B2" />`,
+		`    <FittingEntry E1D1="${escapeXml(dimS(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimD(entry["END1 B"]))}" />`,
+		`    <FittingEntry E2D1="${escapeXml(dimPlain(entry["END2 A"]))}" />`,
+		`    <FittingEntry Length="${escapeXml(dimPlain(entry["L"]))}" />`,
+		`    <FittingEntry E1Str="0" />`,
+		`    <FittingEntry E2Str="2" />`,
+		`    <FittingEntry E2Adj="0" />`,
+		`    <FittingEntry E2StrAdj="0" />`,
+		`    <FittingEntry D1Offset="C" />`,
+		`    <FittingEntry D2Offset="C" />`,
+		`    <FittingEntry Variation="" />`,
+		`    <FittingEntry E1AngleRise="" />`,
+		`    <FittingEntry E1STDim1="" />`,
+		`    <FittingEntry E1STDim2="" />`,
+		`    <FittingEntry E2AngleRise="" />`,
+		`    <FittingEntry E2STDim1="" />`,
+		`    <FittingEntry E2STDim2="" />`,
+		`    <FittingEntry Breaks="8" />`,
+		connectorsXml(entry, {
+		  extra: [
+			`      <ConnEntry CollarFemaleSeam="PITT,SD,SD" />`,
+			`      <ConnEntry CollarMaleSeam="SD" />`,
+			`      <ConnEntry Collar1End1="PITT,SD,SD" />`,
+			`      <ConnEntry Collar1End2="SD" />`,
+			`      <ConnEntry Collar2End1="PITT,SD,SD" />`,
+			`      <ConnEntry Collar2End2="SD" />`
+		  ]
+		})
+	  ].join("\n");
+	}
+
+	function buildCanvasXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Rectangular Flex Duct",
+		library: "RectangularFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 2
+	  });
+
+	  return [
+		header,
+		`    <FittingEntry E1D1="${escapeXml(dimS(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimD(entry["END1 B"]))}" />`,
+		`    <FittingEntry Pieces="1" />`,
+		`    <FittingEntry PieceSeamLengthA="" />`,
+		`    <FittingEntry PieceSeamLengthB="" />`,
+		connectorsXml(entry)
+	  ].join("\n");
+	}
+
+	function buildEndCapXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Rectangular End Cap",
+		library: "RectangularFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 0
+	  });
+
+	  return [
+		header,
+		`    <FittingEntry XDim="${escapeXml(dimPlain(entry["END1 B"]))}" />`,
+		`    <FittingEntry YDim="${escapeXml(dimPlain(entry["END1 A"]))}" />`,
+		`    <FittingEntry LabelOnly="N" />`,
+		`    <FittingEntry HoleType="N" />`,
+		`    <FittingEntry HoleWidth="" />`,
+		`    <FittingEntry HoleHeight="" />`,
+		`    <FittingEntry HoleX="" />`,
+		`    <FittingEntry HoleY="" />`,
+		`    <FittingEntry HoleConnector="" />`,
+		`    <FittingEntry LinerAdjustment="0" />`,
+		`    <FittingEntry WrapperAdjustment="0" />`,
+		`    <FittingEntry MetalAdjustment="0" />`,
+		[
+		  `    <Connectors>`,
+		  `      <ConnEntry FemaleSeam="ENDCAP" />`,
+		  `      <ConnEntry MaleSeam="SD" />`,
+		  `    </Connectors>`,
+		  `    <Reinforcements />`,
+		  `  </Fitting>`
+		].join("\n")
+	  ].join("\n");
+	}
+
+	function buildDrainPanXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Box",
+		library: "MiscFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 0
+	  });
+
+	  return [
+		header,
+		`    <FittingEntry BoxType="B" />`,
+		`    <FittingEntry Pieces="" />`,
+		`    <FittingEntry E1D1="${escapeXml(dimPlain(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimPlain(entry["END1 B"]))}" />`,
+		`    <FittingEntry Height="${escapeXml(dimPlain(entry["X"]))}" />`,
+		`    <FittingEntry CornerRadius="0" />`,
+		`    <FittingEntry SameSide="Y" />`,
+		`    <FittingEntry BottomHole="N" />`,
+		`    <FittingEntry BottomHoleWidth="" />`,
+		`    <FittingEntry BottomHoleHeight="" />`,
+		`    <FittingEntry BottomHoleX="" />`,
+		`    <FittingEntry BottomHoleY="" />`,
+		`    <FittingEntry SideHole1="N" />`,
+		`    <FittingEntry SideHoleLocation1="" />`,
+		`    <FittingEntry SideHoleWidth1="" />`,
+		`    <FittingEntry SideHoleHeight1="" />`,
+		`    <FittingEntry SideHoleX1="" />`,
+		`    <FittingEntry SideHoleY1="" />`,
+		`    <FittingEntry SideHole2="N" />`,
+		`    <FittingEntry SideHoleLocation2="" />`,
+		`    <FittingEntry SideHoleWidth2="" />`,
+		`    <FittingEntry SideHoleHeight2="" />`,
+		`    <FittingEntry SideHoleX2="" />`,
+		`    <FittingEntry SideHoleY2="" />`,
+		`    <FittingEntry HoleConstraint="0" />`,
+		`    <FittingEntry AngleCutback="" />`,
+		connectorsXml(entry, { includeEnd2: false })
+	  ].join("\n");
+	}
+
+	function buildFlatsheetXml(entry, index, project) {
+	  const header = fittingHeader({
+		index,
+		name: "Box",
+		library: "MiscFittings",
+		project,
+		material: materialGauge(entry),
+		comment: entry.notes || "",
+		quantity: entry.qty || 1,
+		noOfEnds: 0
+	  });
+
+	  return [
+		header,
+		`    <FittingEntry BoxType="B" />`,
+		`    <FittingEntry Pieces="" />`,
+		`    <FittingEntry E1D1="${escapeXml(dimPlain(entry["END1 A"]))}" />`,
+		`    <FittingEntry E1D2="${escapeXml(dimPlain(entry["END1 B"]))}" />`,
+		`    <FittingEntry Height="0" />`,
+		`    <FittingEntry CornerRadius="0" />`,
+		`    <FittingEntry SameSide="Y" />`,
+		`    <FittingEntry BottomHole="N" />`,
+		`    <FittingEntry BottomHoleWidth="" />`,
+		`    <FittingEntry BottomHoleHeight="" />`,
+		`    <FittingEntry BottomHoleX="" />`,
+		`    <FittingEntry BottomHoleY="" />`,
+		`    <FittingEntry SideHole1="N" />`,
+		`    <FittingEntry SideHoleLocation1="" />`,
+		`    <FittingEntry SideHoleWidth1="" />`,
+		`    <FittingEntry SideHoleHeight1="" />`,
+		`    <FittingEntry SideHoleX1="" />`,
+		`    <FittingEntry SideHoleY1="" />`,
+		`    <FittingEntry SideHole2="N" />`,
+		`    <FittingEntry SideHoleLocation2="" />`,
+		`    <FittingEntry SideHoleWidth2="" />`,
+		`    <FittingEntry SideHoleHeight2="" />`,
+		`    <FittingEntry SideHoleX2="" />`,
+		`    <FittingEntry SideHoleY2="" />`,
+		`    <FittingEntry HoleConstraint="0" />`,
+		`    <FittingEntry AngleCutback="" />`,
+		connectorsXml(entry, { includeEnd2: false })
+	  ].join("\n");
+	}
+
+	function buildXmlForEntry(entry, index, project) {
+	  switch (entry.shapeId) {
+		case "straight":
+		  return buildStraightXml(entry, index, project);
+
+		case "elbow":
+		  return buildElbowXml(entry, index, project, "90");
+
+		case "elbow45":
+		  return buildElbowXml(entry, index, project, "45");
+
+		case "offset":
+		  return buildOffsetXml(entry, index, project);
+
+		case "transition":
+		  return buildTransitionXml(entry, index, project);
+
+		case "takeoff":
+		  return buildTakeoffXml(entry, index, project);
+
+		case "square2round":
+		  return buildSquareToRoundXml(entry, index, project);
+
+		case "canvas":
+		  return buildCanvasXml(entry, index, project);
+
+		case "endcap":
+		  return buildEndCapXml(entry, index, project);
+
+		case "drainpan":
+		  return buildDrainPanXml(entry, index, project);
+
+		case "flatsheet":
+		  return buildFlatsheetXml(entry, index, project);
+
+		case "garwood":
+		  throw new Error("Garwood XML mapping is not confirmed from the sample XML yet.");
+
+		default:
+		  throw new Error(`No XML builder for shapeId "${entry.shapeId}"`);
+	  }
+	}
+
+	function buildAllPendingXml(projectName = "Test Import") {
+	  const pending = loadPending();
+
+	  if (!pending.length) {
+		throw new Error("No pending items to export.");
+	  }
+
+	  const lines = [
+		`<?xml version="1.0" encoding="utf-8"?>`,
+		`<Fittings>`
+	  ];
+
+	  pending.forEach((entry, i) => {
+		lines.push(buildXmlForEntry(entry, i + 1, projectName));
+	  });
+
+	  lines.push(`</Fittings>`);
+	  return lines.join("\n");
+	}
+
+	function downloadTextFile(filename, content, mimeType = "text/plain;charset=utf-8") {
+	  const blob = new Blob([content], { type: mimeType });
+	  const url = URL.createObjectURL(blob);
+
+	  const a = document.createElement("a");
+	  a.href = url;
+	  a.download = filename;
+	  document.body.appendChild(a);
+	  a.click();
+	  a.remove();
+
+	  setTimeout(() => URL.revokeObjectURL(url), 1000);
+	}
+
+	if (exportXmlBtn) {
+	  exportXmlBtn.addEventListener("click", () => {
+		try {
+		  const projectName =
+			localStorage.getItem("lastProject") ||
+			prompt("Project name for XML:", "Test Import") ||
+			"Test Import";
+
+		  const xml = buildAllPendingXml(projectName.trim() || "Test Import");
+		  const safeName = (projectName.trim() || "duct-export")
+			.replace(/[^\w\-]+/g, "_");
+
+		  downloadTextFile(`${safeName}.xml`, xml, "application/xml;charset=utf-8");
+		  homeStatusEl.textContent = "XML exported ✅";
+		} catch (err) {
+		  console.error(err);
+		  homeStatusEl.textContent = err.message || "XML export failed ❌";
+		}
+	  });
+	}
 
 
     // ============================================================
