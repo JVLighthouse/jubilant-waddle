@@ -688,16 +688,19 @@
     // ============================================================
     // SETTINGS
     // ============================================================
-    const EDIT_MODE = false; // set false for production
+    const EDIT_MODE = true; // set false for production
 	let historyViewMode = false;
+	let historyUI = {
+	  expanded: new Set(),
+	  scrollTop: 0
+	};
     const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxc_0YD_EOk28VV0u6K-039C4qGMd5QmXLfyNOCPo-1cHSci0u4bq9vN9DCn6vJtCRuDg/exec";
 	const HISTORY_URL = ENDPOINT_URL + "?mode=history";
     const shapes = [
       { id:"straight", fittingId:"1",  name:"Straight Duct", img:"Images/CleanStraightDuct1.png", thumb:"Images/StraightDuctIcon.png" },
 	  { id:"elbow", fittingId:"57",     name:"Elbow",         img:"Images/CleanElbow1.png",        thumb:"Images/ElbowIcon.png" },
 	  { id:"elbow45", fittingId:"57",   name:"Angle Elbow",       img:"Images/45ElbowClean1.png",      thumb:"Images/45ElbowIcon.png" },
-      //{ id:"oldoffset",    name:"Offset",        img:"Images/CleanOffset1.png",       thumb:"Images/OffsetIcon.png" },
-	  { id:"offset",    name:"Offset",        img:"Images/CleanOffset1.png",       thumb:"Images/OffsetIcon.png" },
+	  { id:"offset", fittingId:"17",    name:"Offset",        img:"Images/CleanOffset1.png",       thumb:"Images/OffsetIcon.png" },
 	  { id:"transition", name:"Transition",   img:"Images/TransitionIcon.png",     thumb:"Images/TransitionIcon.png" },
 	  { id:"garwood" , name:"Garwood",   	  img:"Images/GarwoodCenterClean.png",     thumb:"Images/GarwoodIcon.png" },
       { id:"takeoff", fittingId:"58",   name:"Takeoff",       img:"Images/TakeoffClean1.png",            thumb:"Images/TakeoffIcon.png" },
@@ -749,27 +752,27 @@
         ]
       },
 	  
-	  offset: {
-        title: "Offset alignment",
-        fieldName: "variant",        // stored in the form/pending/submission
-        default: "up",
-        options: [
-          { value: "up", fittingId:"17",   label: "Up",     img: "Images/CleanOffsetUp1.png" },
-          { value: "down", fittingId:"17", label: "Down", img: "Images/CleanOffsetDown1.png" },
-          { value: "left", fittingId:"17",  label: "Left",    img: "Images/CleanOffsetLeft1.png" },
-		  { value: "right", fittingId:"17", label: "Right",    img: "Images/CleanOffsetRight1.png" },
+	  //offset: {
+      //  title: "Offset alignment",
+      //  fieldName: "variant",        // stored in the form/pending/submission
+       // default: "up",
+       // options: [
+       //   { value: "up", fittingId:"17",   label: "Up",     img: "Images/CleanOffsetUp1.png" },
+       //   { value: "down", fittingId:"17", label: "Down", img: "Images/CleanOffsetDown1.png" },
+       //   { value: "left", fittingId:"17",  label: "Left",    img: "Images/CleanOffsetLeft1.png" },
+		//  { value: "right", fittingId:"17", label: "Right",    img: "Images/CleanOffsetRight1.png" },
 		  //{ value: "Double",  label: "Double",    img: "Images/DoubleOffset.png" },
-        ]
-      },
+       // ]
+     // },
 	  
 	  elbow: {
         title: "Elbow Configuration",
         fieldName: "variant",        // stored in the form/pending/submission
-        default: "SqThroatRadHeel",
+        default: "sqthroatradheel",
         options: [
-          { value: "sqthroatradheel", fittingId:"57",   label: "Square Throat-Radius Heel",     img: "Images/CleanSquareThroatRoundHeel1.png" },
-          { value: "sqthroatsqheel", fittingId:"57", label: "Square Throat-Square Heel", img: "Images/CleanSquareThroatSquareHeel1.png" },
-          { value: "sqthroatmitreheel", fittingId:"57",  label: "Square Throat-Mitered Heel",    img: "Images/CleanSquareThroatMiteredHeel1.png" },
+          { value: "sqthroatradheel", fittingId:"63",   label: "Square Throat-Radius Heel",     img: "Images/CleanSquareThroatRoundHeel1.png" },
+          { value: "sqthroatsqheel", fittingId:"62", label: "Square Throat-Square Heel", img: "Images/CleanSquareThroatSquareHeel1.png" },
+          { value: "sqthroatmitreheel", fittingId:"64",  label: "Square Throat-Chamfered Heel",    img: "Images/CleanSquareThroatMiteredHeel1.png" },
         ]
       }
 	  
@@ -785,8 +788,8 @@
         {"type":"input","label":"A","name":"END1 A","left":55.5,"top":82.6,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
         {"type":"input","label":"B","name":"END1 B","left":23.6,"top":75.6,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
         {"type":"input","label":"LENGTH","name":"L","left":78.2,"top":47.1,"scale":0.6,"order":3,"required":true},
-        {"type":"select","label":"END1","name":"E1","left":48.4,"top":60.6,"scale":0.6,"order":4,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":47.9,"top":23.5,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":48.4,"top":60.6,"scale":0.6,"order":4,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":47.9,"top":23.5,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"label","text":"END 2","left":49.7,"top":13.7,"scale":0.7},
         {"type":"label","text":"END 1","left":51,"top":93.9,"scale":0.7},
         {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
@@ -803,8 +806,8 @@
         {"type":"input","label":"T2","name":"S2","left":83,"top":65.7,"scale":0.6,"order":5},
         {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
         {"type":"label","text":"END 2","left":88.8,"top":24.2,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"toggle","label":"Liner","name":"liner","left":11.4,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.3,"top":36.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
@@ -819,8 +822,8 @@
         {"type":"input","label":"T2","name":"S2","left":83,"top":65.7,"scale":0.6,"order":5},
         {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
         {"type":"label","text":"END 2","left":88.8,"top":24.2,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"toggle","label":"Liner","name":"liner","left":11.4,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.3,"top":36.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
@@ -835,8 +838,8 @@
         {"type":"input","label":"T2","name":"S2","left":83,"top":65.7,"scale":0.6,"order":5},
         {"type":"label","text":"END 1","left":36,"top":93.3,"scale":0.7},
         {"type":"label","text":"END 2","left":88.8,"top":24.2,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":30.4,"top":61.4,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":54,"top":34.5,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"toggle","label":"Liner","name":"liner","left":11.4,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.3,"top":36.3,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
@@ -854,8 +857,8 @@
         {"type":"label","text":"END 2","left":43.1,"top":16.1,"scale":0.7},
 		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type":"input","label":"Angle","name":"X","left":72.5,"top":90,"scale":0.6,"required":true,"default":"45","order":8},
-        {"type":"select","label":"END1","name":"E1","left":25,"top":55,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":25,"top":29.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":25,"top":55,"scale":0.6,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":25,"top":29.9,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		{"type": "optionGroup","label": "","name": "Ga","left":5.4,"top":41.8,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"label","text":"Ga","left":4.2,"top":19.8,"scale":0.7}
       ],
@@ -871,8 +874,8 @@
         {"type":"input","label":"NECK","name":"S2","left":92.9,"top":45.8,"scale":0.6,"order":10},
         {"type":"label","text":"END 1","left":52.1,"top":105.8,"scale":0.7},
         {"type":"label","text":"END 2","left":60.7,"top":13.7,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":44.7,"top":63.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":57.6,"top":33.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":44.7,"top":63.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57.6,"top":33.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true}
       ],
@@ -885,8 +888,8 @@
 		{"type":"input","label":"LENGTH","name":"L","left":48.3,"top":93.6,"scale":0.6,"order":5,"required":true},
         {"type":"input","label":"OFFSET","name":"X","left":66.8,"top":79.5,"scale":0.6,"order":6,"required":true},
 		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":39,"top":71,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":57,"top":57.9,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END1","name":"E1","left":39,"top":71,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":57,"top":57.9,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"input","label":"NECK1","name":"S1","left":25.4,"top":41.7,"scale":0.6,"order":9},
         {"type":"input","label":"NECK2","name":"S2","left":55.3,"top":25.3,"scale":0.6,"order":10},
 		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
@@ -905,8 +908,8 @@
 		{"type":"input","label":"LENGTH","name":"L","left":49.5,"top":28.3,"scale":0.6,"order":5,"required":true},
         {"type":"input","label":"OFFSET","name":"X","left":80.1,"top":39.2,"scale":0.6,"order":6,"required":true},
 		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":38.9,"top":48.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":58.2,"top":61.2,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END1","name":"E1","left":38.9,"top":48.8,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":58.2,"top":61.2,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"input","label":"NECK1","name":"S1","left":28.6,"top":78,"scale":0.6,"order":9},
         {"type":"input","label":"NECK2","name":"S2","left":51.6,"top":90.6,"scale":0.6,"order":10},
 		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
@@ -925,8 +928,8 @@
 		{"type":"input","label":"LENGTH","name":"L","left":86.2,"top":56,"scale":0.6,"order":5,"required":true},
         {"type":"input","label":"OFFSET","name":"X","left":74.3,"top":19,"scale":0.6,"order":6,"required":true},
 		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":64.9,"top":68,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":53.8,"top":36.1,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END1","name":"E1","left":64.9,"top":68,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":53.8,"top":36.1,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"input","label":"NECK1","name":"S1","left":31.2,"top":80,"scale":0.6,"order":9},
         {"type":"input","label":"NECK2","name":"S2","left":22.8,"top":49.8,"scale":0.6,"order":10},
 		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
@@ -936,18 +939,18 @@
 		{"type":"label","text":"Ga","left":4.2,"top":15.5,"scale":0.7}	
 
       ],
-	  "offset__right": [
-        {"type":"input","label":"A","name":"END1 A","left":48.9,"top":92.4,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
-        {"type":"input","label":"B","name":"END1 B","left":26.6,"top":85.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
-		{"type":"input","label":"A","name":"END2 A","left":55.4,"top":19.4,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
-        {"type":"input","label":"B","name":"END2 B","left":78.4,"top":25.6,"scale":0.6,"order":4,"copy":"END1 B","bgColor":"#f08989"},
-		{"type":"input","label":"LENGTH","name":"L","left":14.5,"top":57.2,"scale":0.6,"order":5,"required":true},
-        {"type":"input","label":"OFFSET","name":"X","left":32.2,"top":31.9,"scale":0.6,"order":6,"required":true},
+	  "offset": [
+        {"type":"input","label":"A","name":"END1 A","left":59.1,"top":81.8,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END1 B","left":37.5,"top":76.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
+		{"type":"input","label":"A","name":"END2 A","left":65.2,"top":22.1,"scale":0.6,"order":3,"copy":"END1 A","bgColor":"#42f5f5"},
+        {"type":"input","label":"B","name":"END2 B","left":86.6,"top":26.7,"scale":0.6,"order":4,"copy":"END1 B","bgColor":"#f08989"},
+		{"type":"input","label":"LENGTH","name":"L","left":27.5,"top":50.4,"scale":0.6,"order":5,"required":true},
+        {"type":"input","label":"OFFSET","name":"X","left":35.9,"top":26.7,"scale":0.6,"order":6,"required":true},
 		{"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
-		{"type":"select","label":"END1","name":"E1","left":45.3,"top":68.9,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":57.1,"top":37,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
-        {"type":"input","label":"NECK1","name":"S1","left":75.7,"top":80.2,"scale":0.6,"order":9},
-        {"type":"input","label":"NECK2","name":"S2","left":87.1,"top":41.6,"scale":0.6,"order":10},
+		{"type":"select","label":"END1","name":"E1","left":52.4,"top":62.3,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":63.4,"top":34.6,"scale":0.5,"order":8,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
+        {"type":"input","label":"NECK1","name":"S1","left":85.9,"top":71.8,"scale":0.6,"order":9},
+        {"type":"input","label":"NECK2","name":"S2","left":94.9,"top":46.5,"scale":0.6,"order":10},
 		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
         {"type":"label","text":"END 1","left":28.6,"top":93.8,"scale":0.7},
         {"type":"label","text":"END 2","left":28.6,"top":16.5,"scale":0.7},
@@ -959,14 +962,14 @@
       canvas: [
         {"type":"input","label":"A","name":"END1 A","left":46.3,"top":75.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
         {"type":"input","label":"B","name":"END1 B","left":7.3,"top":44.6,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
-        {"type":"select","label":"END1","name":"E1","left":41,"top":5.8,"scale":0.6,"order":4,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":42.8,"top":31,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]}
+        {"type":"select","label":"END1","name":"E1","left":41,"top":5.8,"scale":0.6,"order":4,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":42.8,"top":31,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]}
       ],
 
       endcap: [
         {"type":"input","label":"A","name":"END1 A","left":52.1,"top":80.3,"scale":0.6,"order":1,"required":true,"bgColor":"#42f5f5"},
         {"type":"input","label":"B","name":"END1 B","left":7.5,"top":57.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
-        {"type":"select","label":"END1","name":"E1","left":55,"top":17.7,"scale":0.6,"order":3,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END1","name":"E1","left":55,"top":17.7,"scale":0.6,"order":3,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":30.6,"scale": 0.6,"order": 15,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
 		{"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type":"label","text":"Ga","left":4.2,"top":13.4,"scale":0.7}
@@ -985,7 +988,7 @@
         {"type":"label","text":"END 1","left":52.4,"top":93.9,"scale":0.7},
         {"type":"label","text":"END 2","left":52.4,"top":15.6,"scale":0.7},
 		{"type":"input","label":"LENGTH","name":"L","left":83.6,"top":48.6,"scale":0.6,"order":4,"required":true},
-        {"type":"select","label":"END1","name":"E1","left":19.5,"top":53.8,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+        {"type":"select","label":"END1","name":"E1","left":19.5,"top":53.8,"scale":0.6,"order":5,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
         {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":30.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
@@ -999,9 +1002,9 @@
 		  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 		  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 		  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":8},
-		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":9}, 
 		  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":5,"required":true},
 		  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
@@ -1017,9 +1020,9 @@
 				  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 				  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 				  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-				  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+				  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 				  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":8},
-				  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+				  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 				  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":9}, 
 				  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":5,"required":true},
 				  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
@@ -1035,9 +1038,9 @@
 		  {"type":"input","label":"B","name":"END1 B","left":24.3,"top":70.9,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 		  {"type":"input","label":"A","name":"END2 A","left":47.5,"top":20.9,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 		  {"type":"input","label":"B","name":"END2 B","left":69.9,"top":21.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"select","label":"END1","name":"E1","left":43.5,"top":56.8,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		  {"type":"input","label":"T1","name":"S1","left":92.4,"top":64.9,"scale":0.6,"order":8},
-		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		  {"type":"select","label":"END2","name":"E2","left":42.2,"top":33.7,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		  {"type":"input","label":"T2","name":"S2","left":80.3,"top":29.9,"scale":0.6,"order":9}, 
 		  {"type":"input","label":"Length","name":"L","left":87.1,"top":48.1,"scale":0.6,"order":5,"required":true},
 		  {"type":"toggle","label":"Liner","name":"liner","left":11.1,"top":6.3,"scale":0.6},
@@ -1055,10 +1058,10 @@
 		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":8},
 		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":9},
-		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":5,"required":true},
 		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1073,10 +1076,10 @@
 		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":8},
 		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":9},
-		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":5,"required":true},
 		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1091,10 +1094,10 @@
 		{"type":"input","label":"B","name":"END1 B","left":19.2,"top":79.1,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 		{"type":"input","label":"A","name":"END2 A","left":49.8,"top":24.5,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 		{"type":"input","label":"B","name":"END2 B","left":75.7,"top":27.0,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END1","name":"E1","left":48,"top":62,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		{"type":"input","label":"T1","name":"S1","left":89.5,"top":70.9,"scale":0.6,"order":8},
 		{"type":"input","label":"T2","name":"S2","left":87.1,"top":36.6,"scale":0.6,"order":9},
-		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+		{"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 		{"type":"input","label":"Length","name":"L","left":84.6,"top":54.7,"scale":0.6,"order":5,"required":true},
 		{"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 		{"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1109,10 +1112,10 @@
 			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
 			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":8},
 			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":9},
-			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1128,10 +1131,10 @@
 			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
 			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":8},
 			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":9},
-			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1147,10 +1150,10 @@
 			  {"type":"input","label":"B","name":"END1 B","left":11.6,"top":80.5,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 			  {"type":"input","label":"A","name":"END2 A","left":48.2,"top":26.2,"scale":0.6,"order":3,"required":true,"bgColor":"#42f5f5"},
 			  {"type":"input","label":"B","name":"END2 B","left":76.1,"top":27.3,"scale":0.6,"order":4,"required":true,"bgColor":"#f08989"},
-			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
+			  {"type":"select","label":"END1","name":"E1","left":42,"top":64.3,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
 			  {"type":"input","label":"T1","name":"S1","left":83.5,"top":72.8,"scale":0.6,"order":8},
 			  {"type":"input","label":"T2","name":"S2","left":85,"top":43.2,"scale":0.6,"order":9},
-			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+			  {"type":"select","label":"END2","name":"E2","left":48.7,"top":38.1,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
 			  {"type":"input","label":"Length","name":"L","left":81.5,"top":58.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1167,8 +1170,8 @@
 			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A","bgColor":"#42f5f5"},
 			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B","bgColor":"#f08989"},
-			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
+			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"copy":"END1"},
 			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1185,8 +1188,8 @@
 			  {"type":"input","label":"B","name":"END1 B","left":25.5,"top":76.2,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 			  {"type":"input","label":"A","name":"END2 B","left":69.6,"top":28.7,"scale":0.6,"order":3,"required":true,"copy":"END1 A","bgColor":"#42f5f5"},
 			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B","bgColor":"#f08989"},
-			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
+			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"copy":"END1"},
 			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1204,8 +1207,8 @@
 			  {"type":"input","label":"B","name":"END1 B","left":22.8,"top":77.3,"scale":0.6,"order":2,"required":true,"bgColor":"#f08989"},
 			  {"type":"input","label":"A","name":"END2 B","left":80.4,"top":30.2,"scale":0.6,"order":3,"required":true,"copy":"END1 A","bgColor":"#42f5f5"},
 			  {"type":"input","label":"B","name":"END2 A","left":46,"top":25.8,"scale":0.6,"order":4,"required":true,"copy":"END1 B","bgColor":"#f08989"},
-			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"copy":"END1"},
+			  {"type":"select","label":"END1","name":"E1","left":14.9,"top":64,"scale":0.6,"order":6,"required":true,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+			  {"type":"select","label":"END2","name":"E2","left":14.9,"top":43.6,"scale":0.6,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"copy":"END1"},
 			  {"type":"input","label":"Length","name":"L","left":81.5,"top":54.5,"scale":0.6,"order":5,"required":true},
 			  {"type":"label","text":"END 1","left":50.4,"top":94.7,"scale":0.7},
 			  {"type":"label","text":"END 2","left":52,"top":15.8,"scale":0.7},
@@ -1232,8 +1235,8 @@
         {"type":"input","label":"B","name":"END2 B","left":26.5,"top":34.6,"scale":0.6,"order":4,"bgColor":"#f08989","required":true},
         {"type":"label","text":"END 1","left":49,"top":95.3,"scale":0.7},
         {"type":"label","text":"END 2","left":49,"top":13.7,"scale":0.7},
-        {"type":"select","label":"END1","name":"E1","left":57.9,"top":63.2,"scale":0.5,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"],"required":true},
-        {"type":"select","label":"END2","name":"E2","left":55.2,"top":40.6,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1"]},
+        {"type":"select","label":"END1","name":"E1","left":57.9,"top":63.2,"scale":0.5,"order":6,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"],"required":true},
+        {"type":"select","label":"END2","name":"E2","left":55.2,"top":40.6,"scale":0.5,"order":7,"options":["SD","TDX","RAW","1/2 DOUBLE FLANGE","CLINCH","OUT 1","IN 1","D&S"]},
         {"type":"toggle","label":"Liner","name":"liner","left":15.3,"top":6.1,"scale":0.6,"default":false,"onValue":"YES","offValue":"NO"},
         {"type":"optionGroup","label":"INSULATION","name":"insulation","left":52.4,"top":6.1,"scale":0.6,"options":["NO","R6","R8"],"default":"R6","required":true},
 		{"type": "optionGroup","label": "","name": "Ga","left":6.5,"top":27.6,"scale": 0.6,"options": ["20","22","24","26"],"default": "24","required": true,"direction": "vertical"},	
@@ -1421,7 +1424,10 @@
     // ============================================================
     // UI FLOW
     // ============================================================
-    function showHome(){
+    
+	
+	
+	function showHome(){
 	  detail.classList.add("hidden");
 	  historyScreen.classList.add("hidden");
 	  home.classList.remove("hidden");
@@ -1444,7 +1450,7 @@
 	  historyViewMode = false;
 	  setDetailReadOnly(false);
 
-	  window.scrollTo({ top: 0, behavior: "smooth" });
+	  
 	  loadHistory();
 	}
 
@@ -1482,7 +1488,7 @@
 			const senderName = entry.senderName || "Unknown Sender";
 			const projectName = entry.project || "No Project";
 			const listName = entry.listname || "Unspecified List";
-			const groupKey = `${projectName} - ${listName}`;
+			const groupKey = `${projectName} ${listName}`;
 
 			if (senderName !== currentSender){
 			  currentSender = senderName;
@@ -1515,12 +1521,23 @@
 			  header.appendChild(chev);
 
 			  const groupBody = document.createElement("div");
-			  groupBody.className = "history-group-body hidden";
+				groupBody.className = "history-group-body";
+
+				if (!historyUI.expanded.has(groupKey)) {
+				  groupBody.classList.add("hidden");
+				}
 
 			  header.addEventListener("click", () => {
-				const isHidden = groupBody.classList.toggle("hidden");
-				chev.textContent = isHidden ? "►" : "▼";
-			  });
+			  const isHidden = groupBody.classList.toggle("hidden");
+
+			  if (isHidden) {
+				historyUI.expanded.delete(groupKey);
+			  } else {
+				historyUI.expanded.add(groupKey);
+			  }
+
+			  chev.textContent = isHidden ? "►" : "▼";
+			});
 
 			  groupWrap.appendChild(header);
 			  groupWrap.appendChild(groupBody);
@@ -1890,6 +1907,12 @@
 		historyViewMode = false;
 		setDetailReadOnly(false);
 		showHistory();
+
+		requestAnimationFrame(() => {
+		  historyScreen.scrollTop = historyUI.scrollTop;
+		  window.scrollTo({ top: historyUI.scrollTop });
+		});
+
 	  } else {
 		showHome();
 	  }
